@@ -1,0 +1,1785 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta name="theme-color" content="#1a3a5c" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="CCB Fichas" />
+  <title>CCB Caieiras – Fichas</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+
+  <style>
+    :root {
+      --navy: #1a3a5c;
+      --navy-light: #234d7a;
+      --gold: #c8922a;
+      --gold-light: #e8b84b;
+      --cream: #f8f4ee;
+      --white: #ffffff;
+      --gray-100: #f1ede7;
+      --gray-200: #e0d9cf;
+      --gray-400: #a89f92;
+      --gray-600: #6b6258;
+      --gray-800: #3d3630;
+      --danger: #c0392b;
+      --success: #27ae60;
+      --shadow: 0 4px 24px rgba(26,58,92,0.13);
+      --shadow-sm: 0 2px 8px rgba(26,58,92,0.09);
+      --radius: 12px;
+      --radius-sm: 8px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Source Sans 3', sans-serif;
+      background: var(--cream);
+      color: var(--gray-800);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── AUTH SCREEN ── */
+    #auth-screen {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(160deg, var(--navy) 0%, #0d2340 60%, #1a3a5c 100%);
+      padding: 24px;
+    }
+
+    .auth-logo {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .auth-logo .cross {
+      font-size: 56px;
+      color: var(--gold);
+      filter: drop-shadow(0 0 18px rgba(200,146,42,0.5));
+      margin-bottom: 12px;
+    }
+
+    .auth-logo h1 {
+      font-family: 'Merriweather', serif;
+      color: var(--white);
+      font-size: 22px;
+      line-height: 1.3;
+    }
+
+    .auth-logo p {
+      color: var(--gold-light);
+      font-size: 13px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    .auth-card {
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 20px;
+      padding: 32px 28px;
+      width: 100%;
+      max-width: 380px;
+    }
+
+    .auth-card h2 {
+      color: var(--white);
+      font-family: 'Merriweather', serif;
+      font-size: 18px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .auth-field { margin-bottom: 16px; }
+
+    .auth-field label {
+      display: block;
+      color: rgba(255,255,255,0.65);
+      font-size: 12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .auth-field input {
+      width: 100%;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: var(--radius-sm);
+      color: var(--white);
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 15px;
+      padding: 12px 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .auth-field input:focus {
+      border-color: var(--gold);
+    }
+
+    .btn-primary {
+      width: 100%;
+      background: linear-gradient(135deg, var(--gold) 0%, #a8771e 100%);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      padding: 14px;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      margin-top: 8px;
+    }
+
+    .btn-primary:active { transform: scale(0.98); opacity: 0.9; }
+
+    .auth-toggle {
+      text-align: center;
+      margin-top: 18px;
+      color: rgba(255,255,255,0.5);
+      font-size: 13px;
+    }
+
+    .auth-toggle a {
+      color: var(--gold-light);
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    .auth-error {
+      background: rgba(192,57,43,0.2);
+      border: 1px solid rgba(192,57,43,0.4);
+      border-radius: var(--radius-sm);
+      color: #ff9b8e;
+      font-size: 13px;
+      padding: 10px 14px;
+      margin-bottom: 14px;
+      display: none;
+    }
+
+    /* ── MAIN APP ── */
+    #app { display: none; min-height: 100vh; }
+
+    /* Header */
+    .app-header {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+      color: var(--white);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow);
+    }
+
+    .app-header .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .app-header .brand .cross {
+      font-size: 24px;
+      color: var(--gold);
+    }
+
+    .app-header .brand div h1 {
+      font-family: 'Merriweather', serif;
+      font-size: 14px;
+      line-height: 1.2;
+    }
+
+    .app-header .brand div p {
+      font-size: 10px;
+      color: rgba(255,255,255,0.6);
+      letter-spacing: 0.5px;
+    }
+
+    .header-actions { display: flex; gap: 8px; }
+
+    .icon-btn {
+      background: rgba(255,255,255,0.1);
+      border: none;
+      border-radius: 8px;
+      color: var(--white);
+      cursor: pointer;
+      font-size: 18px;
+      padding: 8px 10px;
+      transition: background 0.2s;
+    }
+
+    .icon-btn:active { background: rgba(255,255,255,0.2); }
+
+    /* Tab Nav */
+    .tab-nav {
+      display: flex;
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+      position: sticky;
+      top: 61px;
+      z-index: 99;
+    }
+
+    .tab-btn {
+      flex: 1;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      color: var(--gray-400);
+      cursor: pointer;
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      padding: 12px 8px;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      border-bottom-color: var(--gold);
+      color: var(--navy);
+    }
+
+    .tab-btn span { display: block; font-size: 18px; margin-bottom: 2px; }
+
+    /* Content */
+    .tab-content { display: none; padding: 20px 16px; }
+    .tab-content.active { display: block; }
+
+    /* Form Card */
+    .form-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .form-card-header {
+      background: var(--navy);
+      color: var(--white);
+      font-family: 'Merriweather', serif;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+      padding: 12px 16px;
+    }
+
+    .form-card-body { padding: 16px; }
+
+    /* Fields */
+    .field { margin-bottom: 14px; }
+
+    .field label {
+      display: block;
+      color: var(--gray-600);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+    }
+
+    .field input[type="text"],
+    .field input[type="number"],
+    .field input[type="tel"],
+    .field input[type="date"],
+    .field select,
+    .field textarea {
+      width: 100%;
+      background: var(--gray-100);
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius-sm);
+      color: var(--gray-800);
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 14px;
+      padding: 10px 12px;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      background: var(--white);
+      border-color: var(--navy);
+    }
+
+    .field textarea { min-height: 70px; resize: vertical; }
+
+    /* Row */
+    .field-row { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }
+    .field-row-3 { display: grid; gap: 12px; grid-template-columns: 1fr 1fr 1fr; }
+
+    /* Checkboxes group */
+    .checkbox-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--gray-100);
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      padding: 10px 12px;
+      transition: all 0.2s;
+      user-select: none;
+    }
+
+    .checkbox-item:has(input:checked) {
+      background: #eaf2ff;
+      border-color: var(--navy);
+    }
+
+    .checkbox-item input[type="checkbox"] {
+      accent-color: var(--navy);
+      cursor: pointer;
+      height: 16px;
+      width: 16px;
+      flex-shrink: 0;
+    }
+
+    .checkbox-item span {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--gray-800);
+      line-height: 1.3;
+    }
+
+    /* Radio group */
+    .radio-group { display: flex; gap: 10px; }
+
+    .radio-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--gray-100);
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      flex: 1;
+      justify-content: center;
+      padding: 10px;
+      transition: all 0.2s;
+    }
+
+    .radio-item:has(input:checked) {
+      background: #eaf2ff;
+      border-color: var(--navy);
+    }
+
+    .radio-item input { accent-color: var(--navy); }
+    .radio-item span { font-size: 13px; font-weight: 600; }
+
+    /* Camera section */
+    .photo-area {
+      border: 2px dashed var(--gray-200);
+      border-radius: var(--radius);
+      cursor: pointer;
+      min-height: 160px;
+      overflow: hidden;
+      position: relative;
+      transition: border-color 0.2s;
+    }
+
+    .photo-area:hover { border-color: var(--navy); }
+
+    .photo-placeholder {
+      align-items: center;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      justify-content: center;
+      min-height: 160px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .photo-placeholder .camera-icon { font-size: 40px; opacity: 0.35; }
+
+    .photo-placeholder p {
+      color: var(--gray-400);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .photo-preview {
+      display: none;
+      position: relative;
+    }
+
+    .photo-preview img {
+      border-radius: calc(var(--radius) - 2px);
+      display: block;
+      max-height: 300px;
+      object-fit: cover;
+      width: 100%;
+    }
+
+    .photo-remove {
+      background: var(--danger);
+      border: none;
+      border-radius: 50%;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+      height: 30px;
+      line-height: 30px;
+      position: absolute;
+      right: 8px;
+      text-align: center;
+      top: 8px;
+      width: 30px;
+    }
+
+    #photo-input { display: none; }
+
+    /* Submit button */
+    .btn-submit {
+      width: 100%;
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+      border: none;
+      border-radius: var(--radius);
+      color: var(--white);
+      cursor: pointer;
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      padding: 16px;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+
+    .btn-submit:active { transform: scale(0.98); opacity: 0.9; }
+    .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-secondary {
+      width: 100%;
+      background: none;
+      border: 2px solid var(--navy);
+      border-radius: var(--radius);
+      color: var(--navy);
+      cursor: pointer;
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 13px;
+      margin-top: 10px;
+      transition: all 0.2s;
+    }
+
+    .btn-secondary:active { background: var(--gray-100); }
+
+    /* Loading spinner */
+    .spinner {
+      border: 3px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      display: inline-block;
+      height: 18px;
+      width: 18px;
+      animation: spin 0.8s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Toast */
+    .toast {
+      background: var(--navy);
+      border-radius: var(--radius);
+      bottom: 20px;
+      box-shadow: var(--shadow);
+      color: var(--white);
+      font-size: 14px;
+      font-weight: 600;
+      left: 50%;
+      opacity: 0;
+      padding: 14px 20px;
+      position: fixed;
+      transform: translate(-50%, 20px);
+      transition: all 0.3s ease;
+      z-index: 9999;
+      max-width: 85vw;
+      text-align: center;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    .toast.success { background: var(--success); }
+    .toast.error { background: var(--danger); }
+
+    /* List tab */
+    .search-bar {
+      background: var(--white);
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      margin-bottom: 16px;
+    }
+
+    .search-bar input {
+      background: none;
+      border: none;
+      color: var(--gray-800);
+      flex: 1;
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .search-bar .search-icon { color: var(--gray-400); font-size: 18px; }
+
+    .ficha-list { display: flex; flex-direction: column; gap: 10px; }
+
+    .ficha-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      overflow: hidden;
+      transition: box-shadow 0.2s;
+    }
+
+    .ficha-card:active { box-shadow: var(--shadow); }
+
+    .ficha-card-inner {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+    }
+
+    .ficha-avatar {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+      border-radius: 50%;
+      color: var(--white);
+      flex-shrink: 0;
+      font-family: 'Merriweather', serif;
+      font-size: 18px;
+      height: 46px;
+      line-height: 46px;
+      text-align: center;
+      width: 46px;
+    }
+
+    .ficha-info { flex: 1; min-width: 0; }
+
+    .ficha-info h3 {
+      color: var(--navy);
+      font-family: 'Merriweather', serif;
+      font-size: 14px;
+      font-weight: 700;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .ficha-info p {
+      color: var(--gray-400);
+      font-size: 12px;
+      margin-top: 2px;
+    }
+
+    .ficha-badge {
+      background: var(--gray-100);
+      border-radius: 6px;
+      color: var(--gray-600);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      padding: 4px 8px;
+      text-transform: uppercase;
+    }
+
+    .ficha-badge.inclusao { background: #e8f5e9; color: #27ae60; }
+    .ficha-badge.exclusao { background: #ffebee; color: #c0392b; }
+
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--gray-400);
+    }
+
+    .empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-state p { font-size: 14px; line-height: 1.5; }
+
+    /* Modal */
+    .modal-overlay {
+      background: rgba(0,0,0,0.55);
+      bottom: 0;
+      display: none;
+      left: 0;
+      position: fixed;
+      right: 0;
+      top: 0;
+      z-index: 500;
+      align-items: flex-end;
+    }
+
+    .modal-overlay.show { display: flex; }
+
+    .modal-sheet {
+      background: var(--white);
+      border-radius: 20px 20px 0 0;
+      max-height: 90vh;
+      overflow-y: auto;
+      width: 100%;
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+    .modal-handle {
+      background: var(--gray-200);
+      border-radius: 2px;
+      height: 4px;
+      margin: 12px auto 0;
+      width: 40px;
+    }
+
+    .modal-header {
+      align-items: center;
+      display: flex;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .modal-header h2 {
+      font-family: 'Merriweather', serif;
+      font-size: 16px;
+      color: var(--navy);
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--gray-400);
+      cursor: pointer;
+      font-size: 22px;
+      line-height: 1;
+      padding: 4px;
+    }
+
+    .modal-body { padding: 20px; }
+
+    .detail-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 14px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--gray-100);
+    }
+
+    .detail-row:last-child { border-bottom: none; }
+
+    .detail-label {
+      color: var(--gray-400);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+
+    .detail-value {
+      color: var(--gray-800);
+      font-size: 14px;
+    }
+
+    .detail-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .detail-tag {
+      background: #eaf2ff;
+      border-radius: 6px;
+      color: var(--navy);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+    }
+
+    .modal-photo {
+      border-radius: var(--radius);
+      display: block;
+      margin-top: 8px;
+      max-width: 100%;
+    }
+
+    .btn-danger {
+      width: 100%;
+      background: none;
+      border: 2px solid var(--danger);
+      border-radius: var(--radius);
+      color: var(--danger);
+      cursor: pointer;
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 13px;
+      margin-top: 10px;
+    }
+
+    /* Config tab */
+    .config-section { margin-bottom: 24px; }
+    .config-section h3 {
+      color: var(--navy);
+      font-family: 'Merriweather', serif;
+      font-size: 13px;
+      margin-bottom: 12px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid var(--gold);
+      display: inline-block;
+    }
+
+    .config-info {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .config-info p {
+      font-size: 13px;
+      color: var(--gray-600);
+      line-height: 1.6;
+    }
+
+    .config-info strong { color: var(--navy); }
+
+    .firebase-fields { display: flex; flex-direction: column; gap: 10px; }
+    .firebase-fields input {
+      width: 100%;
+      background: var(--gray-100);
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius-sm);
+      color: var(--gray-800);
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 12px;
+      padding: 10px 12px;
+      outline: none;
+    }
+
+    .firebase-fields input:focus { border-color: var(--navy); }
+    .firebase-fields input::placeholder { color: var(--gray-400); }
+
+    .user-info {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+
+    .user-avatar {
+      background: var(--navy);
+      border-radius: 50%;
+      color: var(--white);
+      font-size: 20px;
+      height: 46px;
+      line-height: 46px;
+      text-align: center;
+      width: 46px;
+      flex-shrink: 0;
+    }
+
+    .user-details h3 { font-size: 15px; font-weight: 700; color: var(--navy); }
+    .user-details p { font-size: 12px; color: var(--gray-400); }
+
+    /* Loader */
+    #loader {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(160deg, var(--navy) 0%, #0d2340 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.4s;
+    }
+
+    #loader .cross { font-size: 52px; color: var(--gold); margin-bottom: 16px; }
+    #loader p { color: rgba(255,255,255,0.6); font-size: 13px; }
+    .loader-bar {
+      width: 120px;
+      height: 3px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 2px;
+      margin-top: 16px;
+      overflow: hidden;
+    }
+    .loader-bar-fill {
+      height: 100%;
+      width: 40%;
+      background: var(--gold);
+      border-radius: 2px;
+      animation: loading 1.2s ease-in-out infinite;
+    }
+
+    @keyframes loading {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(400%); }
+    }
+
+    /* Utility */
+    .mt-8 { margin-top: 8px; }
+    .mt-12 { margin-top: 12px; }
+    .text-center { text-align: center; }
+    .text-xs { font-size: 12px; color: var(--gray-400); }
+  </style>
+</head>
+<body>
+
+<!-- Loader -->
+<div id="loader">
+  <div class="cross">✝</div>
+  <p>Congregação Cristã no Brasil</p>
+  <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+</div>
+
+<!-- Auth Screen -->
+<div id="auth-screen">
+  <div class="auth-logo">
+    <div class="cross">✝</div>
+    <h1>Congregação Cristã<br>no Brasil – Caieiras</h1>
+    <p>Sistema de Fichas</p>
+  </div>
+
+  <div class="auth-card">
+    <h2 id="auth-title">Entrar</h2>
+    <div class="auth-error" id="auth-error"></div>
+
+    <div class="auth-field" id="field-name" style="display:none">
+      <label>Nome</label>
+      <input type="text" id="auth-name" placeholder="Seu nome completo" />
+    </div>
+    <div class="auth-field">
+      <label>E-mail</label>
+      <input type="text" id="auth-email" placeholder="seuemail@email.com" autocomplete="email" />
+    </div>
+    <div class="auth-field">
+      <label>Senha</label>
+      <input type="password" id="auth-pass" placeholder="••••••••" autocomplete="current-password" />
+    </div>
+
+    <button class="btn-primary" id="auth-btn">Entrar</button>
+
+    <div class="auth-toggle" id="auth-toggle">
+      Não tem conta? <a id="auth-switch">Criar conta</a>
+    </div>
+
+    <div class="mt-12 text-center">
+      <p class="text-xs">⚙️ Configure o Firebase na aba <strong style="color:var(--gold-light)">Config</strong> para ativar a sincronização</p>
+    </div>
+  </div>
+</div>
+
+<!-- Main App -->
+<div id="app">
+  <header class="app-header">
+    <div class="brand">
+      <span class="cross">✝</span>
+      <div>
+        <h1>CCB Caieiras</h1>
+        <p>Fichas de Apresentação</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" onclick="openNewFicha()" title="Nova ficha">＋</button>
+      <button class="icon-btn" onclick="signOutUser()" title="Sair">⏻</button>
+    </div>
+  </header>
+
+  <nav class="tab-nav">
+    <button class="tab-btn active" data-tab="tab-list">
+      <span>📋</span>Fichas
+    </button>
+    <button class="tab-btn" data-tab="tab-form">
+      <span>➕</span>Nova
+    </button>
+    <button class="tab-btn" data-tab="tab-config">
+      <span>⚙️</span>Config
+    </button>
+  </nav>
+
+  <!-- TAB: LIST -->
+  <div class="tab-content active" id="tab-list">
+    <div class="search-bar">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="search-input" placeholder="Buscar por nome, localidade..." oninput="filterFichas()" />
+    </div>
+    <div class="ficha-list" id="ficha-list">
+      <div class="empty-state">
+        <div class="empty-icon">📂</div>
+        <p>Nenhuma ficha cadastrada ainda.<br>Toque em <strong>Nova</strong> para começar.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: FORM -->
+  <div class="tab-content" id="tab-form">
+
+    <!-- Cabeçalho Ministerial -->
+    <div class="form-card">
+      <div class="form-card-header">📅 Reunião Ministerial</div>
+      <div class="form-card-body">
+        <div class="field">
+          <label>Considerado na Reunião de</label>
+          <input type="date" id="f-data-reuniao" />
+        </div>
+        <div class="field">
+          <label>Aprovado</label>
+          <div class="radio-group">
+            <label class="radio-item">
+              <input type="radio" name="aprovado" value="SIM" id="r-sim" />
+              <span>✅ SIM</span>
+            </label>
+            <label class="radio-item">
+              <input type="radio" name="aprovado" value="NÃO" id="r-nao" />
+              <span>❌ NÃO</span>
+            </label>
+            <label class="radio-item">
+              <input type="radio" name="aprovado" value="PENDENTE" id="r-pend" checked />
+              <span>⏳ Pendente</span>
+            </label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Tipo</label>
+          <div class="radio-group">
+            <label class="radio-item">
+              <input type="radio" name="tipo" value="INCLUSÃO" id="t-inc" checked />
+              <span>Inclusão</span>
+            </label>
+            <label class="radio-item">
+              <input type="radio" name="tipo" value="EXCLUSÃO" id="t-exc" />
+              <span>Exclusão</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cargos e Reuniões -->
+    <div class="form-card">
+      <div class="form-card-header">🏛 Cargos e Reuniões Familiares</div>
+      <div class="form-card-body">
+        <div class="field">
+          <label>Localidade</label>
+          <input type="text" id="f-localidade" placeholder="Nome da localidade" />
+        </div>
+        <div class="field mt-8">
+          <label>Cargos / Funções</label>
+          <div class="checkbox-group">
+            <label class="checkbox-item">
+              <input type="checkbox" id="cb-portaria" />
+              <span>Portaria</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" id="cb-parte-externa" />
+              <span>Parte Externa</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" id="cb-auxiliar-rjm" />
+              <span>Auxiliar de R.J.M</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" id="cb-controle-som" />
+              <span>Controle do Som</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" id="cb-reuniao-evang" />
+              <span>Reunião de Evangelização</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" id="cb-reuniao-enfermo" />
+              <span>Reunião para Enfermo</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" id="cb-fundo-biblico" />
+              <span>Fundo Bíblico / Distribuição</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" id="cb-colaborador-admin" />
+              <span>Colaborador(a) Administração</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" id="cb-colaborador-piedade" />
+              <span>Colaborador(a) da Piedade</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" id="cb-outros" />
+              <span>Outros</span>
+            </label>
+          </div>
+        </div>
+        <div class="field" id="field-outros-desc" style="display:none">
+          <label>Especificar "Outros"</label>
+          <input type="text" id="f-outros-desc" placeholder="Descreva o cargo/função" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Dados Pessoais -->
+    <div class="form-card">
+      <div class="form-card-header">👤 Dados Pessoais</div>
+      <div class="form-card-body">
+        <div class="field">
+          <label>Nome Completo *</label>
+          <input type="text" id="f-nome" placeholder="Nome completo do irmão/irmã" />
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Idade</label>
+            <input type="number" id="f-idade" placeholder="00" min="0" max="120" />
+          </div>
+          <div class="field">
+            <label>Tempo de Batismo</label>
+            <input type="text" id="f-tempo-batismo" placeholder="Ex: 5 anos" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Endereço</label>
+          <input type="text" id="f-endereco" placeholder="Rua, número, bairro..." />
+        </div>
+        <div class="field">
+          <label>Telefone</label>
+          <input type="tel" id="f-telefone" placeholder="(11) 99999-9999" />
+        </div>
+        <div class="field">
+          <label>Referências</label>
+          <input type="text" id="f-referencias" placeholder="Referências da pessoa" />
+        </div>
+        <div class="field">
+          <label>Observações</label>
+          <textarea id="f-obs" placeholder="Observações gerais..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Foto da Ficha -->
+    <div class="form-card">
+      <div class="form-card-header">📷 Foto da Ficha Original</div>
+      <div class="form-card-body">
+        <div class="photo-area" onclick="document.getElementById('photo-input').click()">
+          <div class="photo-placeholder" id="photo-placeholder">
+            <span class="camera-icon">📷</span>
+            <p>Toque aqui para <strong>tirar foto</strong> ou <strong>selecionar</strong> a ficha original</p>
+          </div>
+          <div class="photo-preview" id="photo-preview">
+            <img id="photo-img" src="" alt="Foto da ficha" />
+            <button class="photo-remove" onclick="removePhoto(event)">✕</button>
+          </div>
+        </div>
+        <input type="file" id="photo-input" accept="image/*" capture="environment" onchange="handlePhoto(event)" />
+        <p class="text-xs mt-8">A foto será armazenada no Firebase Storage</p>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <button class="btn-submit" id="btn-salvar" onclick="salvarFicha()">
+      💾 Salvar Ficha
+    </button>
+    <button class="btn-secondary" id="btn-cancelar" onclick="cancelarFicha()">
+      Cancelar
+    </button>
+    <div style="height: 32px"></div>
+
+  </div>
+
+  <!-- TAB: CONFIG -->
+  <div class="tab-content" id="tab-config">
+
+    <!-- User Info -->
+    <div class="config-section">
+      <h3>👤 Conta</h3>
+      <div class="user-info" id="user-info-box">
+        <div class="user-avatar" id="user-avatar">?</div>
+        <div class="user-details">
+          <h3 id="user-display-name">—</h3>
+          <p id="user-display-email">Não autenticado</p>
+        </div>
+      </div>
+      <button class="btn-secondary" onclick="signOutUser()">Sair da Conta</button>
+    </div>
+
+    <!-- Firebase Config -->
+    <div class="config-section">
+      <h3>🔥 Firebase</h3>
+      <div class="config-info">
+        <p>Para salvar na nuvem, configure seu projeto Firebase. <strong>Os dados ficam salvos no seu dispositivo</strong> mesmo sem configurar.</p>
+        <p style="margin-top:8px">1. Acesse <strong>console.firebase.google.com</strong><br>
+        2. Crie um projeto e ative <strong>Authentication</strong>, <strong>Firestore</strong> e <strong>Storage</strong><br>
+        3. Em Configurações do Projeto, copie os dados abaixo</p>
+      </div>
+      <div class="firebase-fields mt-12">
+        <input type="text" id="fb-apiKey" placeholder="apiKey" />
+        <input type="text" id="fb-authDomain" placeholder="authDomain (projeto.firebaseapp.com)" />
+        <input type="text" id="fb-projectId" placeholder="projectId" />
+        <input type="text" id="fb-storageBucket" placeholder="storageBucket (projeto.appspot.com)" />
+        <input type="text" id="fb-messagingSenderId" placeholder="messagingSenderId" />
+        <input type="text" id="fb-appId" placeholder="appId" />
+      </div>
+      <button class="btn-submit mt-12" onclick="saveFirebaseConfig()">Salvar e Reconectar</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="config-section">
+      <h3>📊 Resumo</h3>
+      <div class="config-info">
+        <p>Total de fichas: <strong id="total-fichas">0</strong></p>
+        <p>Armazenamento: <strong id="storage-info">Local</strong></p>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Detail Modal -->
+<div class="modal-overlay" id="modal-detail">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <h2 id="modal-title">Detalhes da Ficha</h2>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body">
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════
+// APP STATE
+// ══════════════════════════════════════════════
+let fichas = [];
+let currentEditId = null;
+let currentPhotoFile = null;
+let currentPhotoBase64 = null;
+let isAuthMode = 'login';
+let db = null;
+let storage = null;
+let auth = null;
+let currentUser = null;
+let fbApp = null;
+
+// ══════════════════════════════════════════════
+// LOCAL STORAGE
+// ══════════════════════════════════════════════
+function saveLocal() {
+  localStorage.setItem('ccb_fichas', JSON.stringify(fichas));
+}
+
+function loadLocal() {
+  try {
+    fichas = JSON.parse(localStorage.getItem('ccb_fichas') || '[]');
+  } catch(e) { fichas = []; }
+}
+
+// ══════════════════════════════════════════════
+// FIREBASE INIT
+// ══════════════════════════════════════════════
+function loadFirebaseConfig() {
+  try {
+    return JSON.parse(localStorage.getItem('ccb_fb_config') || 'null');
+  } catch(e) { return null; }
+}
+
+function initFirebase(config) {
+  try {
+    if (fbApp) { firebase.app().delete(); }
+    fbApp = firebase.initializeApp(config);
+    auth = firebase.auth();
+    db = firebase.firestore();
+    storage = firebase.storage();
+    setupAuthListener();
+    return true;
+  } catch(e) {
+    console.error('Firebase init error:', e);
+    return false;
+  }
+}
+
+function saveFirebaseConfig() {
+  const config = {
+    apiKey: document.getElementById('fb-apiKey').value.trim(),
+    authDomain: document.getElementById('fb-authDomain').value.trim(),
+    projectId: document.getElementById('fb-projectId').value.trim(),
+    storageBucket: document.getElementById('fb-storageBucket').value.trim(),
+    messagingSenderId: document.getElementById('fb-messagingSenderId').value.trim(),
+    appId: document.getElementById('fb-appId').value.trim(),
+  };
+  if (!config.apiKey || !config.projectId) {
+    showToast('Preencha pelo menos apiKey e projectId', 'error');
+    return;
+  }
+  localStorage.setItem('ccb_fb_config', JSON.stringify(config));
+  const ok = initFirebase(config);
+  showToast(ok ? '🔥 Firebase conectado!' : 'Erro ao conectar Firebase', ok ? 'success' : 'error');
+}
+
+function setupAuthListener() {
+  if (!auth) return;
+  auth.onAuthStateChanged(user => {
+    currentUser = user;
+    if (user) {
+      showApp(user);
+      syncFromCloud();
+    } else {
+      showAuthScreen();
+    }
+  });
+}
+
+// ══════════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════════
+let authMode = 'login';
+
+document.getElementById('auth-switch').onclick = () => {
+  authMode = authMode === 'login' ? 'register' : 'login';
+  document.getElementById('auth-title').textContent = authMode === 'login' ? 'Entrar' : 'Criar Conta';
+  document.getElementById('auth-btn').textContent = authMode === 'login' ? 'Entrar' : 'Criar Conta';
+  document.getElementById('auth-switch').textContent = authMode === 'login' ? 'Criar conta' : 'Já tenho conta';
+  document.getElementById('auth-toggle').innerHTML = authMode === 'login'
+    ? 'Não tem conta? <a id="auth-switch">Criar conta</a>'
+    : 'Já tem conta? <a id="auth-switch">Entrar</a>';
+  document.getElementById('field-name').style.display = authMode === 'register' ? 'block' : 'none';
+  document.getElementById('auth-switch').onclick = arguments.callee;
+  setAuthError('');
+};
+
+document.getElementById('auth-btn').onclick = async () => {
+  const email = document.getElementById('auth-email').value.trim();
+  const pass = document.getElementById('auth-pass').value;
+  setAuthError('');
+
+  if (!email || !pass) { setAuthError('Preencha e-mail e senha'); return; }
+
+  if (!auth) {
+    // Sem Firebase: modo offline
+    currentUser = { email, displayName: email.split('@')[0], uid: 'local' };
+    showApp(currentUser);
+    return;
+  }
+
+  try {
+    if (authMode === 'login') {
+      await auth.signInWithEmailAndPassword(email, pass);
+    } else {
+      const name = document.getElementById('auth-name').value.trim();
+      const cred = await auth.createUserWithEmailAndPassword(email, pass);
+      if (name) await cred.user.updateProfile({ displayName: name });
+    }
+  } catch(e) {
+    const msgs = {
+      'auth/user-not-found': 'Usuário não encontrado',
+      'auth/wrong-password': 'Senha incorreta',
+      'auth/email-already-in-use': 'E-mail já em uso',
+      'auth/weak-password': 'Senha deve ter pelo menos 6 caracteres',
+      'auth/invalid-email': 'E-mail inválido',
+    };
+    setAuthError(msgs[e.code] || e.message);
+  }
+};
+
+// Enter key
+document.getElementById('auth-pass').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('auth-btn').click();
+});
+
+function setAuthError(msg) {
+  const el = document.getElementById('auth-error');
+  el.textContent = msg;
+  el.style.display = msg ? 'block' : 'none';
+}
+
+function showApp(user) {
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  // Update user info
+  const name = user.displayName || user.email || 'Usuário';
+  document.getElementById('user-display-name').textContent = name;
+  document.getElementById('user-display-email').textContent = user.email || '';
+  document.getElementById('user-avatar').textContent = name.charAt(0).toUpperCase();
+  updateStats();
+}
+
+function showAuthScreen() {
+  document.getElementById('auth-screen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+}
+
+async function signOutUser() {
+  if (auth) await auth.signOut();
+  else showAuthScreen();
+}
+
+// ══════════════════════════════════════════════
+// CLOUD SYNC
+// ══════════════════════════════════════════════
+async function syncFromCloud() {
+  if (!db || !currentUser) return;
+  try {
+    const snap = await db.collection('users').doc(currentUser.uid).collection('fichas').get();
+    const cloudFichas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    if (cloudFichas.length > 0) {
+      fichas = cloudFichas;
+      saveLocal();
+    }
+    renderFichas();
+    updateStats();
+    document.getElementById('storage-info').textContent = '☁️ Firebase';
+  } catch(e) {
+    console.error('Sync error:', e);
+  }
+}
+
+async function saveToCloud(ficha) {
+  if (!db || !currentUser) return;
+  try {
+    const ref = db.collection('users').doc(currentUser.uid).collection('fichas').doc(ficha.id);
+    const data = { ...ficha };
+    delete data.id;
+    await ref.set(data);
+  } catch(e) {
+    console.error('Save cloud error:', e);
+  }
+}
+
+async function deleteFromCloud(id) {
+  if (!db || !currentUser) return;
+  try {
+    await db.collection('users').doc(currentUser.uid).collection('fichas').doc(id).delete();
+  } catch(e) {
+    console.error('Delete cloud error:', e);
+  }
+}
+
+async function uploadPhoto(file, fichaId) {
+  if (!storage || !currentUser) return null;
+  try {
+    const ref = storage.ref(`users/${currentUser.uid}/fichas/${fichaId}`);
+    await ref.put(file);
+    return await ref.getDownloadURL();
+  } catch(e) {
+    console.error('Upload error:', e);
+    return null;
+  }
+}
+
+// ══════════════════════════════════════════════
+// FORM
+// ══════════════════════════════════════════════
+document.getElementById('cb-outros').addEventListener('change', e => {
+  document.getElementById('field-outros-desc').style.display = e.target.checked ? 'block' : 'none';
+});
+
+function openNewFicha() {
+  currentEditId = null;
+  resetForm();
+  switchTab('tab-form');
+}
+
+function cancelarFicha() {
+  resetForm();
+  switchTab('tab-list');
+}
+
+function resetForm() {
+  document.getElementById('f-data-reuniao').value = '';
+  document.getElementById('r-pend').checked = true;
+  document.getElementById('t-inc').checked = true;
+  document.getElementById('f-localidade').value = '';
+  document.getElementById('f-nome').value = '';
+  document.getElementById('f-idade').value = '';
+  document.getElementById('f-tempo-batismo').value = '';
+  document.getElementById('f-endereco').value = '';
+  document.getElementById('f-telefone').value = '';
+  document.getElementById('f-referencias').value = '';
+  document.getElementById('f-obs').value = '';
+  document.getElementById('f-outros-desc').value = '';
+  document.getElementById('field-outros-desc').style.display = 'none';
+  const cbs = ['portaria','parte-externa','auxiliar-rjm','controle-som','reuniao-evang',
+    'reuniao-enfermo','fundo-biblico','colaborador-admin','colaborador-piedade','outros'];
+  cbs.forEach(id => { const el = document.getElementById('cb-'+id); if(el) el.checked = false; });
+  removePhoto(null);
+  currentEditId = null;
+}
+
+function getFormData() {
+  const cbs = ['portaria','parte-externa','auxiliar-rjm','controle-som','reuniao-evang',
+    'reuniao-enfermo','fundo-biblico','colaborador-admin','colaborador-piedade','outros'];
+  const cargos = cbs.filter(id => {
+    const el = document.getElementById('cb-'+id);
+    return el && el.checked;
+  }).map(id => id.replace(/-/g,' ').replace(/\b\w/g,c=>c.toUpperCase()));
+
+  return {
+    dataReuniao: document.getElementById('f-data-reuniao').value,
+    aprovado: document.querySelector('input[name="aprovado"]:checked')?.value || 'PENDENTE',
+    tipo: document.querySelector('input[name="tipo"]:checked')?.value || 'INCLUSÃO',
+    localidade: document.getElementById('f-localidade').value.trim(),
+    nome: document.getElementById('f-nome').value.trim(),
+    idade: document.getElementById('f-idade').value,
+    tempoBatismo: document.getElementById('f-tempo-batismo').value.trim(),
+    endereco: document.getElementById('f-endereco').value.trim(),
+    telefone: document.getElementById('f-telefone').value.trim(),
+    referencias: document.getElementById('f-referencias').value.trim(),
+    obs: document.getElementById('f-obs').value.trim(),
+    outrosDesc: document.getElementById('f-outros-desc').value.trim(),
+    cargos,
+    photoBase64: currentPhotoBase64 || null,
+    photoURL: null,
+    criadoEm: new Date().toISOString(),
+  };
+}
+
+async function salvarFicha() {
+  const data = getFormData();
+  if (!data.nome) { showToast('Informe o nome da pessoa', 'error'); return; }
+
+  const btn = document.getElementById('btn-salvar');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Salvando...';
+
+  try {
+    const id = currentEditId || 'ficha_' + Date.now() + '_' + Math.random().toString(36).substr(2,6);
+    data.id = id;
+
+    // Upload photo
+    if (currentPhotoFile && storage && currentUser) {
+      const url = await uploadPhoto(currentPhotoFile, id);
+      if (url) { data.photoURL = url; data.photoBase64 = null; }
+    }
+
+    if (currentEditId) {
+      const idx = fichas.findIndex(f => f.id === currentEditId);
+      if (idx > -1) fichas[idx] = data;
+    } else {
+      fichas.unshift(data);
+    }
+
+    saveLocal();
+    saveToCloud(data);
+    renderFichas();
+    updateStats();
+    resetForm();
+    switchTab('tab-list');
+    showToast('✅ Ficha salva com sucesso!', 'success');
+  } catch(e) {
+    showToast('Erro ao salvar: ' + e.message, 'error');
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '💾 Salvar Ficha';
+}
+
+// ══════════════════════════════════════════════
+// PHOTO
+// ══════════════════════════════════════════════
+function handlePhoto(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  currentPhotoFile = file;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    currentPhotoBase64 = ev.target.result;
+    document.getElementById('photo-img').src = ev.target.result;
+    document.getElementById('photo-placeholder').style.display = 'none';
+    document.getElementById('photo-preview').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+}
+
+function removePhoto(e) {
+  if (e) { e.stopPropagation(); e.preventDefault(); }
+  currentPhotoFile = null;
+  currentPhotoBase64 = null;
+  document.getElementById('photo-img').src = '';
+  document.getElementById('photo-placeholder').style.display = 'flex';
+  document.getElementById('photo-preview').style.display = 'none';
+}
+
+// ══════════════════════════════════════════════
+// LIST
+// ══════════════════════════════════════════════
+function renderFichas(list) {
+  const data = list || fichas;
+  const container = document.getElementById('ficha-list');
+  if (data.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">📂</div><p>Nenhuma ficha encontrada.</p></div>`;
+    return;
+  }
+  container.innerHTML = data.map(f => `
+    <div class="ficha-card" onclick="openDetail('${f.id}')">
+      <div class="ficha-card-inner">
+        <div class="ficha-avatar">${(f.nome||'?').charAt(0).toUpperCase()}</div>
+        <div class="ficha-info">
+          <h3>${f.nome || 'Sem nome'}</h3>
+          <p>${f.localidade || 'Localidade não informada'} • ${f.cargos?.length ? f.cargos.slice(0,2).join(', ') : 'Sem cargo'}</p>
+        </div>
+        <span class="ficha-badge ${f.tipo==='INCLUSÃO'?'inclusao':'exclusao'}">${f.tipo||'—'}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterFichas() {
+  const q = document.getElementById('search-input').value.toLowerCase();
+  if (!q) { renderFichas(); return; }
+  const filtered = fichas.filter(f =>
+    (f.nome||'').toLowerCase().includes(q) ||
+    (f.localidade||'').toLowerCase().includes(q) ||
+    (f.cargos||[]).join(' ').toLowerCase().includes(q)
+  );
+  renderFichas(filtered);
+}
+
+// ══════════════════════════════════════════════
+// DETAIL MODAL
+// ══════════════════════════════════════════════
+function openDetail(id) {
+  const f = fichas.find(x => x.id === id);
+  if (!f) return;
+  document.getElementById('modal-title').textContent = f.nome || 'Ficha';
+  const photoHTML = f.photoURL
+    ? `<img src="${f.photoURL}" class="modal-photo" alt="Foto da ficha" />`
+    : f.photoBase64
+    ? `<img src="${f.photoBase64}" class="modal-photo" alt="Foto da ficha" />`
+    : '<p style="color:var(--gray-400);font-size:13px">Sem foto</p>';
+
+  document.getElementById('modal-body').innerHTML = `
+    <div class="detail-row">
+      <span class="detail-label">Nome</span>
+      <span class="detail-value">${f.nome || '—'}</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">Tipo</span>
+      <span class="ficha-badge ${f.tipo==='INCLUSÃO'?'inclusao':'exclusao'}">${f.tipo || '—'}</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">Aprovado</span>
+      <span class="detail-value">${f.aprovado || '—'}</span>
+    </div>
+    ${f.dataReuniao ? `<div class="detail-row"><span class="detail-label">Reunião Ministerial</span><span class="detail-value">${formatDate(f.dataReuniao)}</span></div>` : ''}
+    <div class="detail-row">
+      <span class="detail-label">Localidade</span>
+      <span class="detail-value">${f.localidade || '—'}</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">Idade / Batismo</span>
+      <span class="detail-value">${f.idade ? f.idade + ' anos' : '—'} / ${f.tempoBatismo || '—'}</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">Endereço</span>
+      <span class="detail-value">${f.endereco || '—'}</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">Telefone</span>
+      <span class="detail-value">${f.telefone || '—'}</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">Referências</span>
+      <span class="detail-value">${f.referencias || '—'}</span>
+    </div>
+    ${f.cargos?.length ? `
+    <div class="detail-row">
+      <span class="detail-label">Cargos / Funções</span>
+      <div class="detail-tags">${f.cargos.map(c=>`<span class="detail-tag">${c}</span>`).join('')}</div>
+    </div>` : ''}
+    ${f.outrosDesc ? `<div class="detail-row"><span class="detail-label">Outros</span><span class="detail-value">${f.outrosDesc}</span></div>` : ''}
+    ${f.obs ? `<div class="detail-row"><span class="detail-label">Obs</span><span class="detail-value">${f.obs}</span></div>` : ''}
+    <div class="detail-row">
+      <span class="detail-label">Foto da Ficha</span>
+      ${photoHTML}
+    </div>
+    <button class="btn-secondary" onclick="editFicha('${f.id}')">✏️ Editar</button>
+    <button class="btn-danger" onclick="deleteFicha('${f.id}')">🗑 Excluir</button>
+    <div style="height:16px"></div>
+  `;
+
+  document.getElementById('modal-detail').classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('modal-detail').classList.remove('show');
+}
+
+document.getElementById('modal-detail').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal-detail')) closeModal();
+});
+
+function editFicha(id) {
+  const f = fichas.find(x => x.id === id);
+  if (!f) return;
+  closeModal();
+  currentEditId = id;
+
+  document.getElementById('f-data-reuniao').value = f.dataReuniao || '';
+  const r = document.querySelector(`input[name="aprovado"][value="${f.aprovado}"]`);
+  if (r) r.checked = true;
+  const t = document.querySelector(`input[name="tipo"][value="${f.tipo}"]`);
+  if (t) t.checked = true;
+  document.getElementById('f-localidade').value = f.localidade || '';
+  document.getElementById('f-nome').value = f.nome || '';
+  document.getElementById('f-idade').value = f.idade || '';
+  document.getElementById('f-tempo-batismo').value = f.tempoBatismo || '';
+  document.getElementById('f-endereco').value = f.endereco || '';
+  document.getElementById('f-telefone').value = f.telefone || '';
+  document.getElementById('f-referencias').value = f.referencias || '';
+  document.getElementById('f-obs').value = f.obs || '';
+  document.getElementById('f-outros-desc').value = f.outrosDesc || '';
+
+  const map = {
+    'Portaria': 'cb-portaria', 'Parte Externa': 'cb-parte-externa', 'Auxiliar De R.J.M': 'cb-auxiliar-rjm',
+    'Controle Do Som': 'cb-controle-som', 'Reuniao Evang': 'cb-reuniao-evang',
+    'Reuniao Enfermo': 'cb-reuniao-enfermo', 'Fundo Biblico': 'cb-fundo-biblico',
+    'Colaborador Admin': 'cb-colaborador-admin', 'Colaborador Piedade': 'cb-colaborador-piedade', 'Outros': 'cb-outros'
+  };
+  (f.cargos || []).forEach(c => {
+    const key = Object.keys(map).find(k => k.toLowerCase() === c.toLowerCase().replace(/\(a\)/g,'').trim());
+    if (key) { const el = document.getElementById(map[key]); if(el) el.checked = true; }
+  });
+  if (f.cargos?.includes('Outros')) document.getElementById('field-outros-desc').style.display = 'block';
+
+  if (f.photoBase64) {
+    currentPhotoBase64 = f.photoBase64;
+    document.getElementById('photo-img').src = f.photoBase64;
+    document.getElementById('photo-placeholder').style.display = 'none';
+    document.getElementById('photo-preview').style.display = 'block';
+  } else if (f.photoURL) {
+    document.getElementById('photo-img').src = f.photoURL;
+    document.getElementById('photo-placeholder').style.display = 'none';
+    document.getElementById('photo-preview').style.display = 'block';
+  }
+
+  switchTab('tab-form');
+}
+
+function deleteFicha(id) {
+  if (!confirm('Excluir esta ficha?')) return;
+  fichas = fichas.filter(f => f.id !== id);
+  saveLocal();
+  deleteFromCloud(id);
+  renderFichas();
+  updateStats();
+  closeModal();
+  showToast('🗑 Ficha excluída', 'error');
+}
+
+// ══════════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════════
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+});
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === tab));
+}
+
+// ══════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(() => t.className = 'toast', 3000);
+}
+
+function formatDate(d) {
+  if (!d) return '—';
+  try {
+    return new Date(d + 'T12:00:00').toLocaleDateString('pt-BR');
+  } catch(e) { return d; }
+}
+
+function updateStats() {
+  document.getElementById('total-fichas').textContent = fichas.length;
+}
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+window.addEventListener('load', () => {
+  loadLocal();
+  renderFichas();
+  updateStats();
+
+  // Load Firebase config fields
+  const cfg = loadFirebaseConfig();
+  if (cfg) {
+    document.getElementById('fb-apiKey').value = cfg.apiKey || '';
+    document.getElementById('fb-authDomain').value = cfg.authDomain || '';
+    document.getElementById('fb-projectId').value = cfg.projectId || '';
+    document.getElementById('fb-storageBucket').value = cfg.storageBucket || '';
+    document.getElementById('fb-messagingSenderId').value = cfg.messagingSenderId || '';
+    document.getElementById('fb-appId').value = cfg.appId || '';
+    initFirebase(cfg);
+  } else {
+    // No firebase: show app in offline mode after short delay
+    setTimeout(() => {
+      document.getElementById('loader').style.opacity = '0';
+      setTimeout(() => document.getElementById('loader').style.display = 'none', 400);
+    }, 1200);
+  }
+
+  setTimeout(() => {
+    document.getElementById('loader').style.opacity = '0';
+    setTimeout(() => document.getElementById('loader').style.display = 'none', 400);
+  }, 1800);
+});
+</script>
+</body>
+</html>
