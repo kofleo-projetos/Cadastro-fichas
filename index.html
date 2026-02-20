@@ -1351,6 +1351,8 @@ async function signInWithGoogle() {
 
 
 let authMode = 'login';
+
+document.getElementById('auth-switch').onclick = () => {
   authMode = authMode === 'login' ? 'register' : 'login';
   document.getElementById('auth-title').textContent = authMode === 'login' ? 'Entrar' : 'Criar Conta';
   document.getElementById('auth-btn').textContent = authMode === 'login' ? 'Entrar' : 'Criar Conta';
