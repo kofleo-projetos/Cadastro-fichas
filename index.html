@@ -52,153 +52,8 @@
       overflow-x: hidden;
     }
 
-    /* ── AUTH SCREEN ── */
-    #auth-screen {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(160deg, var(--navy) 0%, #0d2340 60%, #1a3a5c 100%);
-      padding: 24px;
-    }
-
-    .auth-logo {
-      text-align: center;
-      margin-bottom: 40px;
-    }
-
-    .auth-logo .cross {
-      font-size: 56px;
-      color: var(--gold);
-      filter: drop-shadow(0 0 18px rgba(200,146,42,0.5));
-      margin-bottom: 12px;
-    }
-
-    .auth-logo h1 {
-      font-family: 'Merriweather', serif;
-      color: var(--white);
-      font-size: 22px;
-      line-height: 1.3;
-    }
-
-    .auth-logo p {
-      color: var(--gold-light);
-      font-size: 13px;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      margin-top: 4px;
-    }
-
-    .auth-card {
-      background: rgba(255,255,255,0.06);
-      backdrop-filter: blur(16px);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 20px;
-      padding: 32px 28px;
-      width: 100%;
-      max-width: 380px;
-    }
-
-    .auth-card h2 {
-      color: var(--white);
-      font-family: 'Merriweather', serif;
-      font-size: 18px;
-      margin-bottom: 24px;
-      text-align: center;
-    }
-
-    .auth-field { margin-bottom: 16px; }
-
-    .auth-field label {
-      display: block;
-      color: rgba(255,255,255,0.65);
-      font-size: 12px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      margin-bottom: 6px;
-    }
-
-    .auth-field input {
-      width: 100%;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: var(--radius-sm);
-      color: var(--white);
-      font-family: 'Source Sans 3', sans-serif;
-      font-size: 15px;
-      padding: 12px 14px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    .auth-field input:focus {
-      border-color: var(--gold);
-    }
-
-    .btn-primary {
-      width: 100%;
-      background: linear-gradient(135deg, var(--gold) 0%, #a8771e 100%);
-      color: var(--white);
-      border: none;
-      border-radius: var(--radius-sm);
-      font-family: 'Source Sans 3', sans-serif;
-      font-size: 15px;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      padding: 14px;
-      cursor: pointer;
-      transition: opacity 0.2s, transform 0.1s;
-      margin-top: 8px;
-    }
-
-    .btn-primary:active { transform: scale(0.98); opacity: 0.9; }
-
-    .btn-google {
-      width: 100%;
-      background: white;
-      color: #3c4043;
-      border: none;
-      border-radius: var(--radius-sm);
-      font-family: 'Source Sans 3', sans-serif;
-      font-size: 15px;
-      font-weight: 600;
-      padding: 13px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      transition: opacity 0.2s, transform 0.1s;
-    }
-    .btn-google:active { transform: scale(0.98); opacity: 0.9; }
-
-    .auth-toggle {
-      text-align: center;
-      margin-top: 18px;
-      color: rgba(255,255,255,0.5);
-      font-size: 13px;
-    }
-
-    .auth-toggle a {
-      color: var(--gold-light);
-      cursor: pointer;
-      text-decoration: underline;
-    }
-
-    .auth-error {
-      background: rgba(192,57,43,0.2);
-      border: 1px solid rgba(192,57,43,0.4);
-      border-radius: var(--radius-sm);
-      color: #ff9b8e;
-      font-size: 13px;
-      padding: 10px 14px;
-      margin-bottom: 14px;
-      display: none;
-    }
-
     /* ── MAIN APP ── */
-    #app { display: none; min-height: 100vh; }
+    #app { display: block; min-height: 100vh; }
 
     /* Header */
     .app-header {
@@ -884,6 +739,136 @@
       100% { transform: translateX(400%); }
     }
 
+    /* ── RESUMO TAB ── */
+    .resumo-header {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 16px;
+      color: var(--white);
+      text-align: center;
+    }
+    .resumo-header .resumo-total {
+      font-size: 48px;
+      font-family: 'Merriweather', serif;
+      font-weight: 700;
+      color: var(--gold-light);
+      line-height: 1;
+    }
+    .resumo-header .resumo-label {
+      font-size: 13px;
+      color: rgba(255,255,255,0.7);
+      margin-top: 4px;
+      letter-spacing: 0.5px;
+    }
+    .resumo-mini-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .resumo-mini-card {
+      background: var(--white);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-sm);
+      padding: 12px 10px;
+      text-align: center;
+    }
+    .resumo-mini-card .mini-val {
+      font-family: 'Merriweather', serif;
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .resumo-mini-card .mini-val.inclusao { color: var(--success); }
+    .resumo-mini-card .mini-val.exclusao { color: var(--danger); }
+    .resumo-mini-card .mini-val.pendente { color: #e67e22; }
+    .resumo-mini-card .mini-lbl {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--gray-400);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 3px;
+    }
+    .resumo-section-title {
+      font-family: 'Merriweather', serif;
+      font-size: 13px;
+      color: var(--navy);
+      margin-bottom: 10px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid var(--gold);
+      display: inline-block;
+    }
+    .cargo-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+    .cargo-item {
+      background: var(--white);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+    }
+    .cargo-icon {
+      font-size: 22px;
+      flex-shrink: 0;
+      width: 36px;
+      text-align: center;
+    }
+    .cargo-name { flex: 1; font-size: 13px; font-weight: 600; color: var(--gray-800); }
+    .cargo-bar-wrap { flex: 2; }
+    .cargo-bar-bg {
+      background: var(--gray-100);
+      border-radius: 4px;
+      height: 8px;
+      overflow: hidden;
+    }
+    .cargo-bar-fill {
+      background: linear-gradient(90deg, var(--navy), var(--navy-light));
+      border-radius: 4px;
+      height: 8px;
+      transition: width 0.6s ease;
+    }
+    .cargo-count {
+      font-family: 'Merriweather', serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--navy);
+      min-width: 24px;
+      text-align: right;
+    }
+    .aprovacao-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+    .aprovacao-item {
+      background: var(--white);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+    }
+    .localidade-list { display: flex; flex-direction: column; gap: 8px; }
+    .localidade-item {
+      background: var(--white);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 11px 14px;
+    }
+    .localidade-item .loc-name { font-size: 13px; font-weight: 600; color: var(--gray-800); }
+    .localidade-badge {
+      background: #eaf2ff;
+      color: var(--navy);
+      font-size: 12px;
+      font-weight: 700;
+      border-radius: 20px;
+      padding: 3px 10px;
+    }
+    .resumo-empty { text-align: center; padding: 32px 20px; color: var(--gray-400); font-size: 14px; }
+
     /* Utility */
     .mt-8 { margin-top: 8px; }
     .mt-12 { margin-top: 12px; }
@@ -899,53 +884,6 @@
   <div class="loader-bar"><div class="loader-bar-fill"></div></div>
 </div>
 
-<!-- Auth Screen -->
-<div id="auth-screen">
-  <div class="auth-logo">
-    <h1>Congregação Cristã<br>no Brasil – Caieiras</h1>
-    <p>Sistema de Fichas</p>
-  </div>
-
-  <div class="auth-card">
-    <h2 id="auth-title">Entrar</h2>
-    <div class="auth-error" id="auth-error"></div>
-
-    <div class="auth-field" id="field-name" style="display:none">
-      <label>Nome</label>
-      <input type="text" id="auth-name" placeholder="Seu nome completo" />
-    </div>
-    <div class="auth-field">
-      <label>E-mail</label>
-      <input type="text" id="auth-email" placeholder="seuemail@email.com" autocomplete="email" />
-    </div>
-    <div class="auth-field">
-      <label>Senha</label>
-      <input type="password" id="auth-pass" placeholder="••••••••" autocomplete="current-password" />
-    </div>
-
-    <button class="btn-primary" id="auth-btn">Entrar</button>
-
-    <div style="display:flex;align-items:center;gap:10px;margin:16px 0">
-      <div style="flex:1;height:1px;background:rgba(255,255,255,0.15)"></div>
-      <span style="color:rgba(255,255,255,0.4);font-size:12px">ou</span>
-      <div style="flex:1;height:1px;background:rgba(255,255,255,0.15)"></div>
-    </div>
-
-    <button class="btn-google" id="btn-google" onclick="signInWithGoogle()">
-      <svg width="18" height="18" viewBox="0 0 48 48" style="flex-shrink:0"><path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/><path fill="#FF3D00" d="m6.306 14.691 6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/><path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/><path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/></svg>
-      Entrar com Google
-    </button>
-
-    <div class="auth-toggle" id="auth-toggle">
-      Não tem conta? <a id="auth-switch">Criar conta</a>
-    </div>
-
-    <div class="mt-12 text-center">
-      <p class="text-xs">⚙️ Configure o Firebase na aba <strong style="color:var(--gold-light)">Config</strong> para ativar a sincronização</p>
-    </div>
-  </div>
-</div>
-
 <!-- Main App -->
 <div id="app">
   <header class="app-header">
@@ -957,13 +895,15 @@
     </div>
     <div class="header-actions">
       <button class="icon-btn" onclick="openNewFicha()" title="Nova ficha">＋</button>
-      <button class="icon-btn" onclick="signOutUser()" title="Sair">⏻</button>
     </div>
   </header>
 
   <nav class="tab-nav">
     <button class="tab-btn active" data-tab="tab-list">
       <span>📋</span>Fichas
+    </button>
+    <button class="tab-btn" data-tab="tab-resumo">
+      <span>📊</span>Resumo
     </button>
     <button class="tab-btn" data-tab="tab-form">
       <span>➕</span>Nova
@@ -1158,21 +1098,35 @@
 
   </div>
 
+  <!-- TAB: RESUMO -->
+  <div class="tab-content" id="tab-resumo">
+    <div class="resumo-header">
+      <div class="resumo-total" id="r-total">0</div>
+      <div class="resumo-label">fichas cadastradas</div>
+    </div>
+
+    <div class="resumo-mini-stats">
+      <div class="resumo-mini-card">
+        <div class="mini-val inclusao" id="r-inclusao">0</div>
+        <div class="mini-lbl">✅ Inclusão</div>
+      </div>
+      <div class="resumo-mini-card">
+        <div class="mini-val exclusao" id="r-exclusao">0</div>
+        <div class="mini-lbl">❌ Exclusão</div>
+      </div>
+      <div class="resumo-mini-card">
+        <div class="mini-val pendente" id="r-pendente">0</div>
+        <div class="mini-lbl">⏳ Pendente</div>
+      </div>
+    </div>
+
+    <div id="resumo-corpo">
+      <div class="resumo-empty">Nenhuma ficha cadastrada ainda.</div>
+    </div>
+  </div>
+
   <!-- TAB: CONFIG -->
   <div class="tab-content" id="tab-config">
-
-    <!-- User Info -->
-    <div class="config-section">
-      <h3>👤 Conta</h3>
-      <div class="user-info" id="user-info-box">
-        <div class="user-avatar" id="user-avatar">?</div>
-        <div class="user-details">
-          <h3 id="user-display-name">—</h3>
-          <p id="user-display-email">Não autenticado</p>
-        </div>
-      </div>
-      <button class="btn-secondary" onclick="signOutUser()">Sair da Conta</button>
-    </div>
 
     <!-- Firebase Config -->
     <div class="config-section">
@@ -1219,7 +1173,7 @@
 
     <!-- Stats -->
     <div class="config-section">
-      <h3>📊 Resumo</h3>
+      <h3>📊 Dados</h3>
       <div class="config-info">
         <p>Total de fichas: <strong id="total-fichas">0</strong></p>
         <p>Armazenamento: <strong id="storage-info">Local</strong></p>
@@ -1267,14 +1221,43 @@ let oneDriveAccount = null;
 // ══════════════════════════════════════════════
 // LOCAL STORAGE
 // ══════════════════════════════════════════════
+// ══════════════════════════════════════════════
+// ONEDRIVE COMO ARMAZENAMENTO PRINCIPAL
+// ══════════════════════════════════════════════
+async function saveFichasOneDrive() {
+  const token = await getOneDriveToken();
+  if (!token) return;
+  try {
+    const json = JSON.stringify(fichas);
+    await fetch('https://graph.microsoft.com/v1.0/me/drive/root:/CCB-Fichas/fichas.json:/content', {
+      method: 'PUT',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: json
+    });
+  } catch(e) { console.error('Erro ao salvar fichas no OneDrive:', e); }
+}
+
+async function loadFichasOneDrive() {
+  const token = await getOneDriveToken();
+  if (!token) return false;
+  try {
+    const resp = await fetch('https://graph.microsoft.com/v1.0/me/drive/root:/CCB-Fichas/fichas.json:/content', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (resp.status === 404) { fichas = []; return true; }
+    if (!resp.ok) return false;
+    fichas = await resp.json();
+    return true;
+  } catch(e) { console.error('Erro ao carregar fichas:', e); return false; }
+}
+
 function saveLocal() {
-  localStorage.setItem('ccb_fichas', JSON.stringify(fichas));
+  // Salva apenas configurações, não fichas
 }
 
 function loadLocal() {
-  try {
-    fichas = JSON.parse(localStorage.getItem('ccb_fichas') || '[]');
-  } catch(e) { fichas = []; }
+  // Fichas vêm do OneDrive
+  fichas = [];
 }
 
 // ══════════════════════════════════════════════
@@ -1288,11 +1271,10 @@ function loadFirebaseConfig() {
 
 function initFirebase(config) {
   try {
-    if (fbApp) { firebase.app().delete(); }
-    fbApp = firebase.initializeApp(config);
+    if (fbApp) { try { firebase.app().delete(); } catch(e) {} }
+    fbApp = firebase.apps.length ? firebase.app() : firebase.initializeApp(config);
     auth = firebase.auth();
     db = firebase.firestore();
-    setupAuthListener();
     return true;
   } catch(e) {
     console.error('Firebase init error:', e);
@@ -1319,157 +1301,48 @@ function saveFirebaseConfig() {
 }
 
 function setupAuthListener() {
-  if (!auth) return;
-  auth.onAuthStateChanged(user => {
-    currentUser = user;
-    if (user) {
-      showApp(user);
-      syncFromCloud();
-    } else {
-      showAuthScreen();
-    }
-  });
-}
-
-// ══════════════════════════════════════════════
-// AUTH
-// ══════════════════════════════════════════════
-async function signInWithGoogle() {
-  if (!auth) { showToast('Firebase não conectado', 'error'); return; }
-  try {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    await auth.signInWithPopup(provider);
-  } catch(e) {
-    const msgs = {
-      'auth/popup-closed-by-user': 'Login cancelado',
-      'auth/popup-blocked': 'Popup bloqueado pelo navegador. Permita popups para este site.',
-    };
-    setAuthError(msgs[e.code] || e.message);
+  // Sem autenticação — app sempre disponível
+  if (auth) {
+    auth.onAuthStateChanged(user => {
+      currentUser = user || { uid: 'local', displayName: 'Admin' };
+      if (oneDriveAccount) syncFromCloud();
+    });
   }
 }
 
-
+// ══════════════════════════════════════════════
+// AUTH (desativado — acesso direto)
+// ══════════════════════════════════════════════
+// Sem autenticação — funções mantidas para compatibilidade
+async function signInWithGoogle() {}
+async function signOutUser() {}
+function setAuthError(msg) {}
+function showApp(user) {}
+function showAuthScreen() {}
+function setupAuthListener() {}
 
 let authMode = 'login';
-
-document.getElementById('auth-switch').onclick = () => {
-  authMode = authMode === 'login' ? 'register' : 'login';
-  document.getElementById('auth-title').textContent = authMode === 'login' ? 'Entrar' : 'Criar Conta';
-  document.getElementById('auth-btn').textContent = authMode === 'login' ? 'Entrar' : 'Criar Conta';
-  document.getElementById('auth-switch').textContent = authMode === 'login' ? 'Criar conta' : 'Já tenho conta';
-  document.getElementById('auth-toggle').innerHTML = authMode === 'login'
-    ? 'Não tem conta? <a id="auth-switch">Criar conta</a>'
-    : 'Já tem conta? <a id="auth-switch">Entrar</a>';
-  document.getElementById('field-name').style.display = authMode === 'register' ? 'block' : 'none';
-  document.getElementById('auth-switch').onclick = arguments.callee;
-  setAuthError('');
-};
-
-document.getElementById('auth-btn').onclick = async () => {
-  const email = document.getElementById('auth-email').value.trim();
-  const pass = document.getElementById('auth-pass').value;
-  setAuthError('');
-
-  if (!email || !pass) { setAuthError('Preencha e-mail e senha'); return; }
-
-  if (!auth) {
-    // Sem Firebase: modo offline
-    currentUser = { email, displayName: email.split('@')[0], uid: 'local' };
-    showApp(currentUser);
-    return;
-  }
-
-  try {
-    if (authMode === 'login') {
-      await auth.signInWithEmailAndPassword(email, pass);
-    } else {
-      const name = document.getElementById('auth-name').value.trim();
-      const cred = await auth.createUserWithEmailAndPassword(email, pass);
-      if (name) await cred.user.updateProfile({ displayName: name });
-    }
-  } catch(e) {
-    const msgs = {
-      'auth/user-not-found': 'Usuário não encontrado',
-      'auth/wrong-password': 'Senha incorreta',
-      'auth/email-already-in-use': 'E-mail já em uso',
-      'auth/weak-password': 'Senha deve ter pelo menos 6 caracteres',
-      'auth/invalid-email': 'E-mail inválido',
-    };
-    setAuthError(msgs[e.code] || e.message);
-  }
-};
-
-// Enter key
-document.getElementById('auth-pass').addEventListener('keydown', e => {
-  if (e.key === 'Enter') document.getElementById('auth-btn').click();
-});
-
-function setAuthError(msg) {
-  const el = document.getElementById('auth-error');
-  el.textContent = msg;
-  el.style.display = msg ? 'block' : 'none';
-}
-
-function showApp(user) {
-  document.getElementById('auth-screen').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
-  // Update user info
-  const name = user.displayName || user.email || 'Usuário';
-  document.getElementById('user-display-name').textContent = name;
-  document.getElementById('user-display-email').textContent = user.email || '';
-  document.getElementById('user-avatar').textContent = name.charAt(0).toUpperCase();
-  updateStats();
-}
-
-function showAuthScreen() {
-  document.getElementById('auth-screen').style.display = 'flex';
-  document.getElementById('app').style.display = 'none';
-}
-
-async function signOutUser() {
-  if (auth) await auth.signOut();
-  else showAuthScreen();
-}
 
 // ══════════════════════════════════════════════
 // CLOUD SYNC
 // ══════════════════════════════════════════════
 async function syncFromCloud() {
-  if (!db || !currentUser) return;
-  try {
-    const snap = await db.collection('users').doc(currentUser.uid).collection('fichas').get();
-    const cloudFichas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    if (cloudFichas.length > 0) {
-      fichas = cloudFichas;
-      saveLocal();
-    }
+  if (!oneDriveAccount) return;
+  showToast('🔄 Carregando fichas...', '');
+  const ok = await loadFichasOneDrive();
+  if (ok) {
     renderFichas();
     updateStats();
-    document.getElementById('storage-info').textContent = '☁️ Firebase';
-  } catch(e) {
-    console.error('Sync error:', e);
+    document.getElementById('storage-info').textContent = '☁️ OneDrive';
   }
 }
 
 async function saveToCloud(ficha) {
-  if (!db || !currentUser) return;
-  try {
-    const ref = db.collection('users').doc(currentUser.uid).collection('fichas').doc(ficha.id);
-    const data = { ...ficha };
-    delete data.id;
-    await ref.set(data);
-  } catch(e) {
-    console.error('Save cloud error:', e);
-  }
+  await saveFichasOneDrive();
 }
 
 async function deleteFromCloud(id) {
-  if (!db || !currentUser) return;
-  try {
-    await db.collection('users').doc(currentUser.uid).collection('fichas').doc(id).delete();
-  } catch(e) {
-    console.error('Delete cloud error:', e);
-  }
+  await saveFichasOneDrive();
 }
 
 // ══════════════════════════════════════════════
@@ -1522,6 +1395,8 @@ async function loginOneDrive() {
     oneDriveAccount = resp.account;
     updateOneDriveStatus(true);
     showToast('✅ OneDrive conectado!', 'success');
+    // Carrega fichas do OneDrive logo após conectar
+    await syncFromCloud();
   } catch(e) {
     showToast('Erro ao conectar OneDrive: ' + e.message, 'error');
   }
@@ -1710,7 +1585,6 @@ async function salvarFicha() {
       fichas.unshift(data);
     }
 
-    saveLocal();
     saveToCloud(data);
     renderFichas();
     updateStats();
@@ -1734,10 +1608,22 @@ function handlePhoto(e) {
   currentPhotoFile = file;
   const reader = new FileReader();
   reader.onload = ev => {
-    currentPhotoBase64 = ev.target.result;
-    document.getElementById('photo-img').src = ev.target.result;
-    document.getElementById('photo-placeholder').style.display = 'none';
-    document.getElementById('photo-preview').style.display = 'block';
+    // Compress heavily for preview and local storage (max 400px, 50% quality)
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      let w = img.width, h = img.height;
+      const maxW = 400;
+      if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      const compressed = canvas.toDataURL('image/jpeg', 0.5);
+      currentPhotoBase64 = compressed;
+      document.getElementById('photo-img').src = compressed;
+      document.getElementById('photo-placeholder').style.display = 'none';
+      document.getElementById('photo-preview').style.display = 'block';
+    };
+    img.src = ev.target.result;
   };
   reader.readAsDataURL(file);
   e.target.value = '';
@@ -1911,7 +1797,6 @@ function editFicha(id) {
 function deleteFicha(id) {
   if (!confirm('Excluir esta ficha?')) return;
   fichas = fichas.filter(f => f.id !== id);
-  saveLocal();
   deleteFromCloud(id);
   renderFichas();
   updateStats();
@@ -1929,6 +1814,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 function switchTab(tab) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === tab));
+  if (tab === 'tab-resumo') updateResumo();
 }
 
 // ══════════════════════════════════════════════
@@ -1950,6 +1836,124 @@ function formatDate(d) {
 
 function updateStats() {
   document.getElementById('total-fichas').textContent = fichas.length;
+  updateResumo();
+}
+
+function updateResumo() {
+  const total = fichas.length;
+  document.getElementById('r-total').textContent = total;
+  document.getElementById('r-inclusao').textContent = fichas.filter(f => f.tipo === 'INCLUSÃO').length;
+  document.getElementById('r-exclusao').textContent = fichas.filter(f => f.tipo === 'EXCLUSÃO').length;
+  document.getElementById('r-pendente').textContent = fichas.filter(f => f.aprovado === 'PENDENTE').length;
+
+  const corpo = document.getElementById('resumo-corpo');
+  if (total === 0) {
+    corpo.innerHTML = '<div class="resumo-empty">Nenhuma ficha cadastrada ainda.<br>Vá em <strong>Nova</strong> para começar.</div>';
+    return;
+  }
+
+  // Cargo icons map
+  const cargoIcons = {
+    'portaria': '🚪', 'parte externa': '🌿', 'auxiliar de r.j.m': '🙏',
+    'auxiliar rjm': '🙏', 'controle do som': '🔊', 'reuniao evang': '📖',
+    'reunião de evangelização': '📖', 'reuniao enfermo': '🏥',
+    'reunião para enfermo': '🏥', 'fundo biblico': '📚',
+    'fundo bíblico': '📚', 'fundo bíblico / distribuição': '📚',
+    'colaborador admin': '🗂️', 'colaborador administração': '🗂️',
+    'colaborador(a) administração': '🗂️', 'colaborador piedade': '💛',
+    'colaborador(a) da piedade': '💛', 'outros': '📌'
+  };
+
+  function getCargoIcon(cargo) {
+    const key = cargo.toLowerCase();
+    for (const [k, v] of Object.entries(cargoIcons)) {
+      if (key.includes(k)) return v;
+    }
+    return '📌';
+  }
+
+  // Count by cargo
+  const cargoCounts = {};
+  fichas.forEach(f => {
+    (f.cargos || []).forEach(c => {
+      cargoCounts[c] = (cargoCounts[c] || 0) + 1;
+    });
+  });
+  const sortedCargos = Object.entries(cargoCounts).sort((a,b) => b[1]-a[1]);
+  const maxCargo = sortedCargos[0] ? sortedCargos[0][1] : 1;
+
+  // Count by localidade
+  const locCounts = {};
+  fichas.forEach(f => {
+    const loc = f.localidade || 'Não informada';
+    locCounts[loc] = (locCounts[loc] || 0) + 1;
+  });
+  const sortedLocs = Object.entries(locCounts).sort((a,b) => b[1]-a[1]);
+
+  let html = '';
+
+  // Section: Cargos
+  if (sortedCargos.length > 0) {
+    html += `<div class="resumo-section-title">🏛 Fichas por Cargo</div>
+    <div class="cargo-list">`;
+    sortedCargos.forEach(([cargo, count]) => {
+      const pct = Math.round((count / maxCargo) * 100);
+      html += `
+      <div class="cargo-item">
+        <div class="cargo-icon">${getCargoIcon(cargo)}</div>
+        <div class="cargo-name">${cargo}</div>
+        <div class="cargo-bar-wrap">
+          <div class="cargo-bar-bg"><div class="cargo-bar-fill" style="width:${pct}%"></div></div>
+        </div>
+        <div class="cargo-count">${count}</div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  // Section: Localidades
+  if (sortedLocs.length > 0) {
+    html += `<div class="resumo-section-title">📍 Fichas por Localidade</div>
+    <div class="localidade-list">`;
+    sortedLocs.forEach(([loc, count]) => {
+      html += `
+      <div class="localidade-item">
+        <span class="loc-name">🏠 ${loc}</span>
+        <span class="localidade-badge">${count}</span>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  // Section: Aprovação
+  const aprovSim = fichas.filter(f => f.aprovado === 'SIM').length;
+  const aprovNao = fichas.filter(f => f.aprovado === 'NÃO').length;
+  const aprovPend = fichas.filter(f => f.aprovado === 'PENDENTE').length;
+
+  html += `<div class="resumo-section-title">✅ Status de Aprovação</div>
+  <div class="aprovacao-list">
+    <div class="aprovacao-item">
+      <div class="cargo-icon">✅</div>
+      <div class="cargo-name">Aprovados</div>
+      <div class="cargo-bar-wrap"><div class="cargo-bar-bg"><div class="cargo-bar-fill" style="width:${total ? Math.round(aprovSim/total*100):0}%;background:linear-gradient(90deg,#27ae60,#2ecc71)"></div></div></div>
+      <div class="cargo-count" style="color:var(--success)">${aprovSim}</div>
+    </div>
+    <div class="aprovacao-item">
+      <div class="cargo-icon">⏳</div>
+      <div class="cargo-name">Pendentes</div>
+      <div class="cargo-bar-wrap"><div class="cargo-bar-bg"><div class="cargo-bar-fill" style="width:${total ? Math.round(aprovPend/total*100):0}%;background:linear-gradient(90deg,#e67e22,#f39c12)"></div></div></div>
+      <div class="cargo-count" style="color:#e67e22">${aprovPend}</div>
+    </div>
+    <div class="aprovacao-item">
+      <div class="cargo-icon">❌</div>
+      <div class="cargo-name">Não aprovados</div>
+      <div class="cargo-bar-wrap"><div class="cargo-bar-bg"><div class="cargo-bar-fill" style="width:${total ? Math.round(aprovNao/total*100):0}%;background:linear-gradient(90deg,#c0392b,#e74c3c)"></div></div></div>
+      <div class="cargo-count" style="color:var(--danger)">${aprovNao}</div>
+    </div>
+  </div>
+  <div style="height:20px"></div>`;
+
+  corpo.innerHTML = html;
 }
 
 // ══════════════════════════════════════════════
@@ -1989,8 +1993,12 @@ window.addEventListener('load', () => {
   document.getElementById('fb-messagingSenderId').value = cfg.messagingSenderId || '';
   document.getElementById('fb-appId').value = cfg.appId || '';
 
-  // Inicializa Firebase automaticamente
-  initFirebase(cfg);
+  // Inicializa Firebase sem autenticação obrigatória
+  try {
+    if (!firebase.apps.length) firebase.initializeApp(cfg);
+    db = firebase.firestore();
+    auth = firebase.auth();
+  } catch(e) { console.warn('Firebase init:', e); }
 
   // Carrega config do OneDrive
   const odCfg = loadOneDriveConfig();
@@ -1998,12 +2006,15 @@ window.addEventListener('load', () => {
     document.getElementById('od-clientId').value = odCfg.clientId || '';
     document.getElementById('od-redirectUri').value = odCfg.redirectUri || '';
     initMSAL(odCfg);
+    setTimeout(async () => {
+      if (oneDriveAccount) await syncFromCloud();
+    }, 1000);
   }
 
   setTimeout(() => {
     document.getElementById('loader').style.opacity = '0';
     setTimeout(() => document.getElementById('loader').style.display = 'none', 400);
-  }, 1800);
+  }, 1200);
 });
 </script>
 </body>
