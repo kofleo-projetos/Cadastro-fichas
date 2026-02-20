@@ -1749,28 +1749,42 @@ function updateStats() {
 // ══════════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════════
+// ══════════════════════════════════════════════
+// FIREBASE CONFIG (pré-configurado)
+// ══════════════════════════════════════════════
+const DEFAULT_FIREBASE_CONFIG = {
+  apiKey: "AIzaSyAStumrNOzBpJIz0SWQR5ymhIrD7vBOcEU",
+  authDomain: "cadastro-de-fichas-ccb.firebaseapp.com",
+  projectId: "cadastro-de-fichas-ccb",
+  storageBucket: "cadastro-de-fichas-ccb.firebasestorage.app",
+  messagingSenderId: "959575103518",
+  appId: "1:959575103518:web:24998a147ba608c1bf760f"
+};
+
 window.addEventListener('load', () => {
   loadLocal();
   renderFichas();
   updateStats();
 
-  // Load Firebase config fields
-  const cfg = loadFirebaseConfig();
-  if (cfg) {
-    document.getElementById('fb-apiKey').value = cfg.apiKey || '';
-    document.getElementById('fb-authDomain').value = cfg.authDomain || '';
-    document.getElementById('fb-projectId').value = cfg.projectId || '';
-    document.getElementById('fb-storageBucket').value = cfg.storageBucket || '';
-    document.getElementById('fb-messagingSenderId').value = cfg.messagingSenderId || '';
-    document.getElementById('fb-appId').value = cfg.appId || '';
-    initFirebase(cfg);
-  } else {
-    // No firebase: show app in offline mode after short delay
-    setTimeout(() => {
-      document.getElementById('loader').style.opacity = '0';
-      setTimeout(() => document.getElementById('loader').style.display = 'none', 400);
-    }, 1200);
+  // Usa config salva pelo usuário ou a config padrão embutida
+  const savedCfg = loadFirebaseConfig();
+  const cfg = savedCfg || DEFAULT_FIREBASE_CONFIG;
+
+  // Salva no localStorage para consistência
+  if (!savedCfg) {
+    localStorage.setItem('ccb_fb_config', JSON.stringify(cfg));
   }
+
+  // Preenche os campos de configuração na aba Config
+  document.getElementById('fb-apiKey').value = cfg.apiKey || '';
+  document.getElementById('fb-authDomain').value = cfg.authDomain || '';
+  document.getElementById('fb-projectId').value = cfg.projectId || '';
+  document.getElementById('fb-storageBucket').value = cfg.storageBucket || '';
+  document.getElementById('fb-messagingSenderId').value = cfg.messagingSenderId || '';
+  document.getElementById('fb-appId').value = cfg.appId || '';
+
+  // Inicializa Firebase automaticamente
+  initFirebase(cfg);
 
   setTimeout(() => {
     document.getElementById('loader').style.opacity = '0';
