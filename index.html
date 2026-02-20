@@ -18,7 +18,8 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+  <!-- Microsoft MSAL (OneDrive) -->
+  <script src="https://alcdn.msauth.net/browser/2.38.3/js/msal-browser.min.js"></script>
 
   <style>
     :root {
@@ -152,6 +153,25 @@
     }
 
     .btn-primary:active { transform: scale(0.98); opacity: 0.9; }
+
+    .btn-google {
+      width: 100%;
+      background: white;
+      color: #3c4043;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      padding: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    .btn-google:active { transform: scale(0.98); opacity: 0.9; }
 
     .auth-toggle {
       text-align: center;
@@ -905,6 +925,17 @@
 
     <button class="btn-primary" id="auth-btn">Entrar</button>
 
+    <div style="display:flex;align-items:center;gap:10px;margin:16px 0">
+      <div style="flex:1;height:1px;background:rgba(255,255,255,0.15)"></div>
+      <span style="color:rgba(255,255,255,0.4);font-size:12px">ou</span>
+      <div style="flex:1;height:1px;background:rgba(255,255,255,0.15)"></div>
+    </div>
+
+    <button class="btn-google" id="btn-google" onclick="signInWithGoogle()">
+      <svg width="18" height="18" viewBox="0 0 48 48" style="flex-shrink:0"><path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/><path fill="#FF3D00" d="m6.306 14.691 6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/><path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/><path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/></svg>
+      Entrar com Google
+    </button>
+
     <div class="auth-toggle" id="auth-toggle">
       Não tem conta? <a id="auth-switch">Criar conta</a>
     </div>
@@ -1112,7 +1143,7 @@
           </div>
         </div>
         <input type="file" id="photo-input" accept="image/*" capture="environment" onchange="handlePhoto(event)" />
-        <p class="text-xs mt-8">A foto será armazenada no Firebase Storage</p>
+        <p class="text-xs mt-8">A foto será armazenada no seu OneDrive</p>
       </div>
     </div>
 
@@ -1147,20 +1178,43 @@
     <div class="config-section">
       <h3>🔥 Firebase</h3>
       <div class="config-info">
-        <p>Para salvar na nuvem, configure seu projeto Firebase. <strong>Os dados ficam salvos no seu dispositivo</strong> mesmo sem configurar.</p>
-        <p style="margin-top:8px">1. Acesse <strong>console.firebase.google.com</strong><br>
-        2. Crie um projeto e ative <strong>Authentication</strong>, <strong>Firestore</strong> e <strong>Storage</strong><br>
-        3. Em Configurações do Projeto, copie os dados abaixo</p>
+        <p>Configurações do Firestore para salvar as fichas na nuvem.</p>
       </div>
       <div class="firebase-fields mt-12">
         <input type="text" id="fb-apiKey" placeholder="apiKey" />
         <input type="text" id="fb-authDomain" placeholder="authDomain (projeto.firebaseapp.com)" />
         <input type="text" id="fb-projectId" placeholder="projectId" />
-        <input type="text" id="fb-storageBucket" placeholder="storageBucket (projeto.appspot.com)" />
+        <input type="text" id="fb-storageBucket" placeholder="storageBucket" style="display:none" />
         <input type="text" id="fb-messagingSenderId" placeholder="messagingSenderId" />
         <input type="text" id="fb-appId" placeholder="appId" />
       </div>
       <button class="btn-submit mt-12" onclick="saveFirebaseConfig()">Salvar e Reconectar</button>
+    </div>
+
+    <!-- OneDrive Config -->
+    <div class="config-section">
+      <h3>☁️ OneDrive (Fotos)</h3>
+      <div class="config-info">
+        <p>As fotos das fichas serão salvas na pasta <strong>CCB-Fichas</strong> do seu OneDrive.</p>
+        <p style="margin-top:8px">Para configurar:<br>
+        1. Acesse <strong>portal.azure.com</strong><br>
+        2. Vá em <strong>Microsoft Entra ID → Registros de aplicativo</strong><br>
+        3. Clique em <strong>Novo registro</strong><br>
+        4. Nome: <em>CCB Fichas</em> | Tipo: <em>Contas pessoais Microsoft</em><br>
+        5. Em <strong>Autenticação</strong> → adicione a URL do seu app como Redirect URI (tipo SPA)<br>
+        6. Copie o <strong>ID do aplicativo (cliente)</strong> abaixo</p>
+      </div>
+      <div class="firebase-fields mt-12">
+        <input type="text" id="od-clientId" placeholder="Client ID do Azure (ex: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)" />
+        <input type="text" id="od-redirectUri" placeholder="Redirect URI (URL do seu app)" />
+      </div>
+      <button class="btn-submit mt-12" onclick="saveOneDriveConfig()">Salvar OneDrive</button>
+      <button class="btn-secondary" id="btn-od-login" onclick="loginOneDrive()" style="display:none">
+        🔑 Conectar ao OneDrive
+      </button>
+      <div id="od-status" class="config-info mt-12" style="display:none">
+        <p id="od-status-text"></p>
+      </div>
     </div>
 
     <!-- Stats -->
@@ -1202,10 +1256,13 @@ let currentPhotoFile = null;
 let currentPhotoBase64 = null;
 let isAuthMode = 'login';
 let db = null;
-let storage = null;
 let auth = null;
 let currentUser = null;
 let fbApp = null;
+
+// OneDrive / MSAL
+let msalInstance = null;
+let oneDriveAccount = null;
 
 // ══════════════════════════════════════════════
 // LOCAL STORAGE
@@ -1235,7 +1292,6 @@ function initFirebase(config) {
     fbApp = firebase.initializeApp(config);
     auth = firebase.auth();
     db = firebase.firestore();
-    storage = firebase.storage();
     setupAuthListener();
     return true;
   } catch(e) {
@@ -1278,9 +1334,23 @@ function setupAuthListener() {
 // ══════════════════════════════════════════════
 // AUTH
 // ══════════════════════════════════════════════
-let authMode = 'login';
+async function signInWithGoogle() {
+  if (!auth) { showToast('Firebase não conectado', 'error'); return; }
+  try {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    await auth.signInWithPopup(provider);
+  } catch(e) {
+    const msgs = {
+      'auth/popup-closed-by-user': 'Login cancelado',
+      'auth/popup-blocked': 'Popup bloqueado pelo navegador. Permita popups para este site.',
+    };
+    setAuthError(msgs[e.code] || e.message);
+  }
+}
 
-document.getElementById('auth-switch').onclick = () => {
+
+
+let authMode = 'login';
   authMode = authMode === 'login' ? 'register' : 'login';
   document.getElementById('auth-title').textContent = authMode === 'login' ? 'Entrar' : 'Criar Conta';
   document.getElementById('auth-btn').textContent = authMode === 'login' ? 'Entrar' : 'Criar Conta';
@@ -1400,16 +1470,150 @@ async function deleteFromCloud(id) {
   }
 }
 
-async function uploadPhoto(file, fichaId) {
-  if (!storage || !currentUser) return null;
+// ══════════════════════════════════════════════
+// ONEDRIVE
+// ══════════════════════════════════════════════
+function loadOneDriveConfig() {
+  try { return JSON.parse(localStorage.getItem('ccb_od_config') || 'null'); } catch(e) { return null; }
+}
+
+function saveOneDriveConfig() {
+  const clientId = document.getElementById('od-clientId').value.trim();
+  const redirectUri = document.getElementById('od-redirectUri').value.trim() || window.location.href.split('?')[0];
+  if (!clientId) { showToast('Informe o Client ID do Azure', 'error'); return; }
+  const cfg = { clientId, redirectUri };
+  localStorage.setItem('ccb_od_config', JSON.stringify(cfg));
+  initMSAL(cfg);
+  showToast('✅ OneDrive configurado! Clique em Conectar.', 'success');
+}
+
+function initMSAL(cfg) {
   try {
-    const ref = storage.ref(`users/${currentUser.uid}/fichas/${fichaId}`);
-    await ref.put(file);
-    return await ref.getDownloadURL();
+    msalInstance = new msal.PublicClientApplication({
+      auth: {
+        clientId: cfg.clientId,
+        authority: 'https://login.microsoftonline.com/consumers',
+        redirectUri: cfg.redirectUri || window.location.href.split('?')[0],
+      },
+      cache: { cacheLocation: 'localStorage' }
+    });
+    // Check if already logged in
+    const accounts = msalInstance.getAllAccounts();
+    if (accounts.length > 0) {
+      oneDriveAccount = accounts[0];
+      updateOneDriveStatus(true);
+    } else {
+      updateOneDriveStatus(false);
+    }
+    document.getElementById('btn-od-login').style.display = 'block';
   } catch(e) {
-    console.error('Upload error:', e);
+    console.error('MSAL init error:', e);
+  }
+}
+
+async function loginOneDrive() {
+  if (!msalInstance) { showToast('Configure o Client ID primeiro', 'error'); return; }
+  try {
+    const resp = await msalInstance.loginPopup({
+      scopes: ['Files.ReadWrite', 'User.Read']
+    });
+    oneDriveAccount = resp.account;
+    updateOneDriveStatus(true);
+    showToast('✅ OneDrive conectado!', 'success');
+  } catch(e) {
+    showToast('Erro ao conectar OneDrive: ' + e.message, 'error');
+  }
+}
+
+function updateOneDriveStatus(connected) {
+  const el = document.getElementById('od-status');
+  const txt = document.getElementById('od-status-text');
+  el.style.display = 'block';
+  if (connected && oneDriveAccount) {
+    txt.innerHTML = `✅ Conectado como <strong>${oneDriveAccount.username}</strong>`;
+    document.getElementById('storage-info').textContent = '☁️ OneDrive';
+    document.getElementById('btn-od-login').textContent = '🔄 Reconectar OneDrive';
+  } else {
+    txt.innerHTML = '⚠️ OneDrive não conectado. Clique em <strong>Conectar ao OneDrive</strong>.';
+  }
+}
+
+async function getOneDriveToken() {
+  if (!msalInstance || !oneDriveAccount) return null;
+  try {
+    const resp = await msalInstance.acquireTokenSilent({
+      scopes: ['Files.ReadWrite'],
+      account: oneDriveAccount
+    });
+    return resp.accessToken;
+  } catch(e) {
+    try {
+      const resp = await msalInstance.acquireTokenPopup({ scopes: ['Files.ReadWrite'] });
+      return resp.accessToken;
+    } catch(e2) { return null; }
+  }
+}
+
+async function uploadPhoto(file, fichaId) {
+  const token = await getOneDriveToken();
+  if (!token) return null;
+  try {
+    // Compress image before upload
+    const compressed = await compressImage(file, 800, 0.7);
+    const ext = file.type === 'image/png' ? 'png' : 'jpg';
+    const filename = `${fichaId}.${ext}`;
+    // Upload to OneDrive folder CCB-Fichas
+    const uploadUrl = `https://graph.microsoft.com/v1.0/me/drive/root:/CCB-Fichas/${filename}:/content`;
+    const resp = await fetch(uploadUrl, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': file.type
+      },
+      body: compressed
+    });
+    if (!resp.ok) throw new Error('Upload failed: ' + resp.status);
+    const data = await resp.json();
+    // Create share link
+    const shareResp = await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${data.id}/createLink`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ type: 'view', scope: 'anonymous' })
+    });
+    if (shareResp.ok) {
+      const shareData = await shareResp.json();
+      // Convert to direct image URL
+      const shareUrl = shareData.link.webUrl;
+      const directUrl = shareUrl.replace('1drv.ms', 'api.onedrive.com').replace('/s!', '/shares/s!') ;
+      return shareUrl; // return share URL, will display via proxy or direct
+    }
+    return data.webUrl || null;
+  } catch(e) {
+    console.error('OneDrive upload error:', e);
     return null;
   }
+}
+
+function compressImage(file, maxWidth, quality) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let w = img.width, h = img.height;
+        if (w > maxWidth) { h = Math.round(h * maxWidth / w); w = maxWidth; }
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        canvas.toBlob(resolve, 'image/jpeg', quality);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
 }
 
 // ══════════════════════════════════════════════
@@ -1491,8 +1695,8 @@ async function salvarFicha() {
     const id = currentEditId || 'ficha_' + Date.now() + '_' + Math.random().toString(36).substr(2,6);
     data.id = id;
 
-    // Upload photo
-    if (currentPhotoFile && storage && currentUser) {
+    // Upload photo to OneDrive
+    if (currentPhotoFile && oneDriveAccount) {
       const url = await uploadPhoto(currentPhotoFile, id);
       if (url) { data.photoURL = url; data.photoBase64 = null; }
     }
@@ -1785,6 +1989,14 @@ window.addEventListener('load', () => {
 
   // Inicializa Firebase automaticamente
   initFirebase(cfg);
+
+  // Carrega config do OneDrive
+  const odCfg = loadOneDriveConfig();
+  if (odCfg) {
+    document.getElementById('od-clientId').value = odCfg.clientId || '';
+    document.getElementById('od-redirectUri').value = odCfg.redirectUri || '';
+    initMSAL(odCfg);
+  }
 
   setTimeout(() => {
     document.getElementById('loader').style.opacity = '0';
