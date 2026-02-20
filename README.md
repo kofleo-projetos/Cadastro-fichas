@@ -1,4 +1,4 @@
-# CCB Caieiras – Sistema de Fichas 📋✝️
+# CCB Caieiras – Sistema de Fichas 📋
 
 App PWA para cadastro de fichas de apresentação para cargos e reuniões familiares.
 
