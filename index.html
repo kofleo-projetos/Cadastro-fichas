@@ -1424,11 +1424,14 @@ function saveOneDriveConfig() {
   if (!clientId) { showToast('Informe o Client ID do Azure', 'error'); return; }
   const cfg = { clientId, redirectUri };
   localStorage.setItem('ccb_od_config', JSON.stringify(cfg));
+  // Mostra o botão conectar imediatamente
+  document.getElementById('btn-od-login').style.display = 'block';
+  document.getElementById('btn-od-login').textContent = '🔑 Conectar ao OneDrive';
+  showToast('✅ Configuração salva! Agora clique em Conectar.', 'success');
   initMSAL(cfg);
-  showToast('✅ OneDrive configurado! Clique em Conectar.', 'success');
 }
 
-function initMSAL(cfg) {
+async function initMSAL(cfg) {
   try {
     msalInstance = new msal.PublicClientApplication({
       auth: {
@@ -1438,7 +1441,11 @@ function initMSAL(cfg) {
       },
       cache: { cacheLocation: 'localStorage' }
     });
-    // Check if already logged in
+    // MSAL v2 requer initialize() antes de usar
+    if (msalInstance.initialize) {
+      await msalInstance.initialize();
+    }
+    // Verifica se já está logado
     const accounts = msalInstance.getAllAccounts();
     if (accounts.length > 0) {
       oneDriveAccount = accounts[0];
@@ -1449,22 +1456,38 @@ function initMSAL(cfg) {
     document.getElementById('btn-od-login').style.display = 'block';
   } catch(e) {
     console.error('MSAL init error:', e);
+    showToast('Erro ao inicializar MSAL: ' + e.message, 'error');
   }
 }
 
 async function loginOneDrive() {
-  if (!msalInstance) { showToast('Configure o Client ID primeiro', 'error'); return; }
+  if (!msalInstance) {
+    // Tenta inicializar com config salva
+    const cfg = loadOneDriveConfig();
+    if (cfg) { await initMSAL(cfg); }
+    else { showToast('Configure e salve o Client ID primeiro', 'error'); return; }
+  }
   try {
+    // Garante que o MSAL está inicializado
+    if (msalInstance.initialize) {
+      try { await msalInstance.initialize(); } catch(e) {}
+    }
     const resp = await msalInstance.loginPopup({
       scopes: ['Files.ReadWrite', 'User.Read']
     });
     oneDriveAccount = resp.account;
     updateOneDriveStatus(true);
     showToast('✅ OneDrive conectado!', 'success');
-    // Carrega fichas do OneDrive logo após conectar
     await syncFromCloud();
   } catch(e) {
-    showToast('Erro ao conectar OneDrive: ' + e.message, 'error');
+    console.error('Login OneDrive error:', e);
+    if (e.errorCode === 'popup_window_error') {
+      showToast('Popup bloqueado! Permita popups para este site.', 'error');
+    } else if (e.errorCode === 'user_cancelled') {
+      showToast('Login cancelado.', '');
+    } else {
+      showToast('Erro: ' + (e.errorMessage || e.message), 'error');
+    }
   }
 }
 
@@ -2074,10 +2097,11 @@ window.addEventListener('load', () => {
   if (odCfg) {
     document.getElementById('od-clientId').value = odCfg.clientId || '';
     document.getElementById('od-redirectUri').value = odCfg.redirectUri || '';
-    initMSAL(odCfg);
-    setTimeout(async () => {
-      if (oneDriveAccount) await syncFromCloud();
-    }, 1000);
+    // Mostra o botão conectar imediatamente se já tem config salva
+    document.getElementById('btn-od-login').style.display = 'block';
+    initMSAL(odCfg).then(() => {
+      if (oneDriveAccount) syncFromCloud();
+    });
   }
 
   setTimeout(() => {
