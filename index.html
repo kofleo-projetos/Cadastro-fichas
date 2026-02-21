@@ -1481,7 +1481,8 @@ async function loginOneDrive() {
   try {
     const resp = await msalInstance.loginPopup({
       scopes: ['Files.ReadWrite', 'User.Read'],
-      loginHint: 'secretaria_ccb_caieiras@hotmail.com'
+      loginHint: 'secretaria_ccb_caieiras@hotmail.com',
+      prompt: 'login'
     });
     oneDriveAccount = resp.account;
     updateOneDriveStatus(true);
@@ -1522,7 +1523,11 @@ async function getOneDriveToken() {
     return resp.accessToken;
   } catch(e) {
     try {
-      const resp = await msalInstance.acquireTokenPopup({ scopes: ['Files.ReadWrite'] });
+      const resp = await msalInstance.acquireTokenPopup({
+        scopes: ['Files.ReadWrite'],
+        loginHint: 'secretaria_ccb_caieiras@hotmail.com',
+        prompt: 'login'
+      });
       return resp.accessToken;
     } catch(e2) { return null; }
   }
