@@ -1480,7 +1480,8 @@ async function loginOneDrive() {
   }
   try {
     const resp = await msalInstance.loginPopup({
-      scopes: ['Files.ReadWrite', 'User.Read']
+      scopes: ['Files.ReadWrite', 'User.Read'],
+      loginHint: 'secretaria_ccb_caieiras@hotmail.com'
     });
     oneDriveAccount = resp.account;
     updateOneDriveStatus(true);
