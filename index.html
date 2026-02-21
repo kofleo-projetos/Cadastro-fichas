@@ -19,7 +19,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <!-- Microsoft MSAL (OneDrive) -->
-  <script src="https://alcdn.msauth.net/browser/2.38.3/js/msal-browser.min.js"></script>
+  <script src="https://alcdn.msauth.net/browser/2.32.2/js/msal-browser.min.js"></script>
 
   <style>
     :root {
@@ -1433,6 +1433,10 @@ function saveOneDriveConfig() {
 
 async function initMSAL(cfg) {
   try {
+    if (typeof msal === 'undefined') {
+      showToast('Biblioteca MSAL não carregou. Verifique sua conexão.', 'error');
+      return;
+    }
     msalInstance = new msal.PublicClientApplication({
       auth: {
         clientId: cfg.clientId,
@@ -1456,22 +1460,25 @@ async function initMSAL(cfg) {
     document.getElementById('btn-od-login').style.display = 'block';
   } catch(e) {
     console.error('MSAL init error:', e);
-    showToast('Erro ao inicializar MSAL: ' + e.message, 'error');
+    showToast('Erro ao inicializar: ' + e.message, 'error');
   }
 }
 
 async function loginOneDrive() {
+  const cfg = loadOneDriveConfig();
+  if (!cfg || !cfg.clientId) {
+    showToast('Configure e salve o Client ID primeiro', 'error');
+    return;
+  }
+  // Se msalInstance não está pronto, inicializa agora
   if (!msalInstance) {
-    // Tenta inicializar com config salva
-    const cfg = loadOneDriveConfig();
-    if (cfg) { await initMSAL(cfg); }
-    else { showToast('Configure e salve o Client ID primeiro', 'error'); return; }
+    await initMSAL(cfg);
+  }
+  if (!msalInstance) {
+    showToast('Falha ao carregar biblioteca Microsoft. Recarregue a página.', 'error');
+    return;
   }
   try {
-    // Garante que o MSAL está inicializado
-    if (msalInstance.initialize) {
-      try { await msalInstance.initialize(); } catch(e) {}
-    }
     const resp = await msalInstance.loginPopup({
       scopes: ['Files.ReadWrite', 'User.Read']
     });
