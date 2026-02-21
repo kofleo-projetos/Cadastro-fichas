@@ -977,7 +977,8 @@
       <div class="form-card-body">
         <div class="field">
           <label>Localidade</label>
-          <input type="text" id="f-localidade" placeholder="Nome da localidade" />
+          <input type="text" id="f-localidade" list="lista-igrejas" placeholder="Selecione ou digite a localidade" autocomplete="off" />
+          <datalist id="lista-igrejas"></datalist>
         </div>
         <div class="field mt-8">
           <label>Cargos / Funções</label>
@@ -1128,47 +1129,36 @@
   <!-- TAB: CONFIG -->
   <div class="tab-content" id="tab-config">
 
-    <!-- Firebase Config -->
+    <!-- OneDrive Status -->
     <div class="config-section">
-      <h3>🔥 Firebase</h3>
-      <div class="config-info">
-        <p>Configurações do Firestore para salvar as fichas na nuvem.</p>
+      <h3>☁️ OneDrive</h3>
+      <div id="od-status" class="config-info" style="display:block">
+        <p id="od-status-text">⚠️ OneDrive não conectado.</p>
       </div>
-      <div class="firebase-fields mt-12">
-        <input type="text" id="fb-apiKey" placeholder="apiKey" />
-        <input type="text" id="fb-authDomain" placeholder="authDomain (projeto.firebaseapp.com)" />
-        <input type="text" id="fb-projectId" placeholder="projectId" />
-        <input type="text" id="fb-storageBucket" placeholder="storageBucket" style="display:none" />
-        <input type="text" id="fb-messagingSenderId" placeholder="messagingSenderId" />
-        <input type="text" id="fb-appId" placeholder="appId" />
-      </div>
-      <button class="btn-submit mt-12" onclick="saveFirebaseConfig()">Salvar e Reconectar</button>
-    </div>
-
-    <!-- OneDrive Config -->
-    <div class="config-section">
-      <h3>☁️ OneDrive (Fotos)</h3>
-      <div class="config-info">
-        <p>As fotos das fichas serão salvas na pasta <strong>CCB-Fichas</strong> do seu OneDrive.</p>
-        <p style="margin-top:8px">Para configurar:<br>
-        1. Acesse <strong>portal.azure.com</strong><br>
-        2. Vá em <strong>Microsoft Entra ID → Registros de aplicativo</strong><br>
-        3. Clique em <strong>Novo registro</strong><br>
-        4. Nome: <em>CCB Fichas</em> | Tipo: <em>Contas pessoais Microsoft</em><br>
-        5. Em <strong>Autenticação</strong> → adicione a URL do seu app como Redirect URI (tipo SPA)<br>
-        6. Copie o <strong>ID do aplicativo (cliente)</strong> abaixo</p>
-      </div>
-      <div class="firebase-fields mt-12">
-        <input type="text" id="od-clientId" placeholder="Client ID do Azure (ex: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)" />
-        <input type="text" id="od-redirectUri" placeholder="Redirect URI (URL do seu app)" />
+      <div class="firebase-fields mt-12" id="od-fields">
+        <input type="text" id="od-clientId" placeholder="Client ID do Azure" />
+        <input type="text" id="od-redirectUri" placeholder="Redirect URI (URL do app)" />
       </div>
       <button class="btn-submit mt-12" onclick="saveOneDriveConfig()">Salvar OneDrive</button>
       <button class="btn-secondary" id="btn-od-login" onclick="loginOneDrive()" style="display:none">
         🔑 Conectar ao OneDrive
       </button>
-      <div id="od-status" class="config-info mt-12" style="display:none">
-        <p id="od-status-text"></p>
+    </div>
+
+    <!-- Cadastro de Igrejas / Localidades -->
+    <div class="config-section">
+      <h3>🏛 Localidades / Igrejas</h3>
+      <div class="config-info" style="margin-bottom:12px">
+        <p style="font-size:13px;color:var(--gray-600)">As localidades cadastradas aqui aparecem como lista no campo <strong>Localidade</strong> ao preencher uma ficha.</p>
       </div>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <input type="text" id="nova-igreja" placeholder="Nome da localidade/igreja"
+          style="flex:1;background:var(--gray-100);border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);color:var(--gray-800);font-family:'Source Sans 3',sans-serif;font-size:14px;padding:10px 12px;outline:none;"
+          onkeydown="if(event.key==='Enter') adicionarIgreja()"
+          onfocus="this.style.borderColor='var(--navy)'" onblur="this.style.borderColor='var(--gray-200)'" />
+        <button onclick="adicionarIgreja()" style="background:var(--navy);border:none;border-radius:var(--radius-sm);color:white;cursor:pointer;font-size:20px;padding:10px 16px;flex-shrink:0">＋</button>
+      </div>
+      <div id="lista-igrejas-config"></div>
     </div>
 
     <!-- Stats -->
@@ -1178,6 +1168,13 @@
         <p>Total de fichas: <strong id="total-fichas">0</strong></p>
         <p>Armazenamento: <strong id="storage-info">Local</strong></p>
       </div>
+    </div>
+
+    <!-- Firebase oculto (campos mantidos para compatibilidade) -->
+    <div style="display:none">
+      <input type="text" id="fb-apiKey" /><input type="text" id="fb-authDomain" />
+      <input type="text" id="fb-projectId" /><input type="text" id="fb-storageBucket" />
+      <input type="text" id="fb-messagingSenderId" /><input type="text" id="fb-appId" />
     </div>
 
   </div>
@@ -1252,12 +1249,71 @@ async function loadFichasOneDrive() {
 }
 
 function saveLocal() {
-  // Salva apenas configurações, não fichas
+  try { localStorage.setItem('ccb_fichas_backup', JSON.stringify(fichas)); } catch(e) {}
 }
 
 function loadLocal() {
-  // Fichas vêm do OneDrive
-  fichas = [];
+  try {
+    const saved = localStorage.getItem('ccb_fichas_backup');
+    fichas = saved ? JSON.parse(saved) : [];
+  } catch(e) { fichas = []; }
+}
+
+// ── IGREJAS / LOCALIDADES ──
+let igrejas = [];
+
+function loadIgrejas() {
+  try {
+    const saved = localStorage.getItem('ccb_igrejas');
+    igrejas = saved ? JSON.parse(saved) : [];
+  } catch(e) { igrejas = []; }
+}
+
+function saveIgrejas() {
+  try { localStorage.setItem('ccb_igrejas', JSON.stringify(igrejas)); } catch(e) {}
+}
+
+function adicionarIgreja() {
+  const input = document.getElementById('nova-igreja');
+  const nome = input.value.trim();
+  if (!nome) { showToast('Digite o nome da localidade', 'error'); return; }
+  if (igrejas.includes(nome)) { showToast('Localidade já cadastrada', 'error'); return; }
+  igrejas.push(nome);
+  igrejas.sort((a, b) => a.localeCompare(b, 'pt-BR'));
+  saveIgrejas();
+  input.value = '';
+  renderIgrejas();
+  atualizarDatalistIgrejas();
+  showToast('✅ Localidade adicionada!', 'success');
+}
+
+function removerIgreja(nome) {
+  igrejas = igrejas.filter(i => i !== nome);
+  saveIgrejas();
+  renderIgrejas();
+  atualizarDatalistIgrejas();
+  showToast('🗑 Localidade removida', 'error');
+}
+
+function renderIgrejas() {
+  const container = document.getElementById('lista-igrejas-config');
+  if (!container) return;
+  if (igrejas.length === 0) {
+    container.innerHTML = '<p style="font-size:13px;color:var(--gray-400);text-align:center;padding:12px">Nenhuma localidade cadastrada ainda.</p>';
+    return;
+  }
+  container.innerHTML = igrejas.map(nome => `
+    <div style="display:flex;align-items:center;justify-content:space-between;background:var(--white);border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:8px">
+      <span style="font-size:14px;font-weight:600;color:var(--navy)">🏠 ${nome}</span>
+      <button onclick="removerIgreja(decodeURIComponent('${encodeURIComponent(nome)}'))" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:18px;line-height:1;padding:2px 6px">✕</button>
+    </div>
+  `).join('');
+}
+
+function atualizarDatalistIgrejas() {
+  const dl = document.getElementById('lista-igrejas');
+  if (!dl) return;
+  dl.innerHTML = igrejas.map(nome => `<option value="${nome}"></option>`).join('');
 }
 
 // ══════════════════════════════════════════════
@@ -1331,6 +1387,7 @@ async function syncFromCloud() {
   showToast('🔄 Carregando fichas...', '');
   const ok = await loadFichasOneDrive();
   if (ok) {
+    saveLocal(); // atualiza backup local com dados da nuvem
     renderFichas();
     updateStats();
     document.getElementById('storage-info').textContent = '☁️ OneDrive';
@@ -1338,11 +1395,20 @@ async function syncFromCloud() {
 }
 
 async function saveToCloud(ficha) {
-  await saveFichasOneDrive();
+  try {
+    await saveFichasOneDrive();
+    saveLocal(); // sempre salva backup local também
+  } catch(e) {
+    saveLocal();
+    showToast('⚠️ Salvo localmente. OneDrive indisponível.', '');
+  }
 }
 
 async function deleteFromCloud(id) {
-  await saveFichasOneDrive();
+  try {
+    await saveFichasOneDrive();
+    saveLocal();
+  } catch(e) { saveLocal(); }
 }
 
 // ══════════════════════════════════════════════
@@ -1367,7 +1433,7 @@ function initMSAL(cfg) {
     msalInstance = new msal.PublicClientApplication({
       auth: {
         clientId: cfg.clientId,
-        authority: 'https://login.microsoftonline.com/consumers',
+        authority: 'https://login.microsoftonline.com/common',
         redirectUri: cfg.redirectUri || window.location.href.split('?')[0],
       },
       cache: { cacheLocation: 'localStorage' }
@@ -1585,7 +1651,7 @@ async function salvarFicha() {
       fichas.unshift(data);
     }
 
-    saveToCloud(data);
+    await saveToCloud(data);
     renderFichas();
     updateStats();
     resetForm();
@@ -1973,8 +2039,11 @@ const DEFAULT_FIREBASE_CONFIG = {
 
 window.addEventListener('load', () => {
   loadLocal();
+  loadIgrejas();
   renderFichas();
   updateStats();
+  renderIgrejas();
+  atualizarDatalistIgrejas();
 
   // Usa config salva pelo usuário ou a config padrão embutida
   const savedCfg = loadFirebaseConfig();
