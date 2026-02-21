@@ -703,8 +703,43 @@
     .user-details h3 { font-size: 15px; font-weight: 700; color: var(--navy); }
     .user-details p { font-size: 12px; color: var(--gray-400); }
 
-    /* Loader */
-    #loader {
+    /* Lightbox */
+    .lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.92);
+      z-index: 9998;
+      align-items: center;
+      justify-content: center;
+      cursor: zoom-out;
+    }
+    .lightbox.show { display: flex; }
+    .lightbox img {
+      max-width: 95vw;
+      max-height: 95vh;
+      object-fit: contain;
+      border-radius: 8px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+    }
+    .lightbox-close {
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 32px;
+      cursor: pointer;
+      line-height: 1;
+      opacity: 0.8;
+    }
+    .lightbox-close:hover { opacity: 1; }
+    .modal-photo {
+      cursor: zoom-in;
+      transition: opacity 0.2s;
+    }
+    .modal-photo:hover { opacity: 0.85; }
       position: fixed;
       inset: 0;
       background: linear-gradient(160deg, var(--navy) 0%, #0d2340 100%);
@@ -1192,6 +1227,12 @@
     <div class="modal-body" id="modal-body">
     </div>
   </div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img id="lightbox-img" src="" alt="Foto da ficha" onclick="event.stopPropagation()" />
 </div>
 
 <!-- Toast -->
@@ -1796,9 +1837,9 @@ function openDetail(id) {
   if (!f) return;
   document.getElementById('modal-title').textContent = f.nome || 'Ficha';
   const photoHTML = f.photoURL
-    ? `<img src="${f.photoURL}" class="modal-photo" alt="Foto da ficha" />`
+    ? `<img src="${f.photoURL}" class="modal-photo" alt="Foto da ficha" onclick="openLightbox('${f.photoURL}')" onerror="this.outerHTML='<a href=\\'${f.photoURL}\\' target=\\'_blank\\' style=\\'color:var(--navy);font-weight:600;font-size:13px\\'>🔗 Abrir foto no OneDrive</a>'" />`
     : f.photoBase64
-    ? `<img src="${f.photoBase64}" class="modal-photo" alt="Foto da ficha" />`
+    ? `<img src="${f.photoBase64}" class="modal-photo" alt="Foto da ficha" onclick="openLightbox('${f.photoBase64}')" />`
     : '<p style="color:var(--gray-400);font-size:13px">Sem foto</p>';
 
   document.getElementById('modal-body').innerHTML = `
@@ -1853,6 +1894,23 @@ function openDetail(id) {
 
   document.getElementById('modal-detail').classList.add('show');
 }
+
+function openLightbox(src) {
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('show');
+  document.getElementById('lightbox-img').src = '';
+  document.body.style.overflow = '';
+}
+
+// Fecha lightbox com ESC
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeLightbox();
+});
 
 function closeModal() {
   document.getElementById('modal-detail').classList.remove('show');
