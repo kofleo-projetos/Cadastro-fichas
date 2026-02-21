@@ -1445,16 +1445,29 @@ async function initMSAL(cfg) {
       },
       cache: { cacheLocation: 'localStorage' }
     });
-    // MSAL v2 requer initialize() antes de usar
     if (msalInstance.initialize) {
       await msalInstance.initialize();
     }
-    // Verifica se já está logado
+
+    const CONTA_CORRETA = 'secretaria_ccb_caieiras@hotmail.com';
+
+    // Remove qualquer conta que NÃO seja a conta correta
     const accounts = msalInstance.getAllAccounts();
-    if (accounts.length > 0) {
-      oneDriveAccount = accounts[0];
+    for (const acc of accounts) {
+      if (acc.username.toLowerCase() !== CONTA_CORRETA.toLowerCase()) {
+        try { await msalInstance.logoutPopup({ account: acc, mainWindowRedirectUri: window.location.href }); } catch(e) {}
+        msalInstance.getTokenCache && msalInstance.getTokenCache().removeAccount && msalInstance.getTokenCache().removeAccount(acc);
+      }
+    }
+
+    // Verifica se a conta correta está logada
+    const accountsApos = msalInstance.getAllAccounts();
+    const contaCorreta = accountsApos.find(a => a.username.toLowerCase() === CONTA_CORRETA.toLowerCase());
+    if (contaCorreta) {
+      oneDriveAccount = contaCorreta;
       updateOneDriveStatus(true);
     } else {
+      oneDriveAccount = null;
       updateOneDriveStatus(false);
     }
     document.getElementById('btn-od-login').style.display = 'block';
@@ -2074,6 +2087,19 @@ const DEFAULT_FIREBASE_CONFIG = {
 };
 
 window.addEventListener('load', () => {
+  // Limpa sessão MSAL de contas erradas do localStorage
+  const CONTA_CORRETA = 'secretaria_ccb_caieiras@hotmail.com';
+  Object.keys(localStorage).forEach(key => {
+    if (key.startsWith('msal.') || key.includes('login.windows') || key.includes('microsoftonline')) {
+      try {
+        const val = localStorage.getItem(key);
+        if (val && val.includes('@') && !val.toLowerCase().includes(CONTA_CORRETA.toLowerCase())) {
+          localStorage.removeItem(key);
+        }
+      } catch(e) {}
+    }
+  });
+
   loadLocal();
   loadIgrejas();
   renderFichas();
