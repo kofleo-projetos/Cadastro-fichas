@@ -1230,12 +1230,12 @@
       <div id="od-status" class="config-info" style="display:block">
         <p id="od-status-text">⚠️ OneDrive não conectado.</p>
       </div>
-      <div class="firebase-fields mt-12" id="od-fields">
-        <input type="text" id="od-clientId" placeholder="Client ID do Azure" />
-        <input type="text" id="od-redirectUri" placeholder="Redirect URI (URL do app)" />
+      <!-- Campos ocultos — config embutida no código -->
+      <div style="display:none">
+        <input type="text" id="od-clientId" />
+        <input type="text" id="od-redirectUri" />
       </div>
-      <button class="btn-submit mt-12" onclick="saveOneDriveConfig()">Salvar OneDrive</button>
-      <button class="btn-secondary" id="btn-od-login" onclick="loginOneDrive()" style="display:none">
+      <button class="btn-submit mt-12" id="btn-od-login" onclick="loginOneDrive()">
         🔑 Conectar ao OneDrive
       </button>
     </div>
@@ -1536,23 +1536,23 @@ async function deleteFromCloud(id) {
 }
 
 // ══════════════════════════════════════════════
-// ONEDRIVE
+// ONEDRIVE — config fixa no código (não depende de cache)
 // ══════════════════════════════════════════════
+const DEFAULT_ONEDRIVE_CONFIG = {
+  clientId: '392c7c72-bc27-486f-9ff3-d9599743ac80',
+  redirectUri: 'https://kofleo-projetos.github.io/Cadastro-fichas/'
+};
+
 function loadOneDriveConfig() {
-  try { return JSON.parse(localStorage.getItem('ccb_od_config') || 'null'); } catch(e) { return null; }
+  // Sempre retorna a config fixa — cache não afeta
+  return DEFAULT_ONEDRIVE_CONFIG;
 }
 
 function saveOneDriveConfig() {
-  const clientId = document.getElementById('od-clientId').value.trim();
-  const redirectUri = document.getElementById('od-redirectUri').value.trim() || window.location.href.split('?')[0];
-  if (!clientId) { showToast('Informe o Client ID do Azure', 'error'); return; }
-  const cfg = { clientId, redirectUri };
-  localStorage.setItem('ccb_od_config', JSON.stringify(cfg));
-  // Mostra o botão conectar imediatamente
+  // Config já embutida no app, apenas reinicializa e mostra botão
+  showToast('✅ Configuração já está embutida no app!', 'success');
   document.getElementById('btn-od-login').style.display = 'block';
-  document.getElementById('btn-od-login').textContent = '🔑 Conectar ao OneDrive';
-  showToast('✅ Configuração salva! Agora clique em Conectar.', 'success');
-  initMSAL(cfg);
+  initMSAL(DEFAULT_ONEDRIVE_CONFIG);
 }
 
 async function initMSAL(cfg) {
@@ -1645,6 +1645,7 @@ function updateOneDriveStatus(connected) {
     txt.innerHTML = `✅ Conectado como <strong>${oneDriveAccount.username}</strong>`;
     document.getElementById('storage-info').textContent = '☁️ OneDrive';
     document.getElementById('btn-od-login').textContent = '🔄 Reconectar OneDrive';
+    document.getElementById('btn-od-login').style.display = 'block';
   } else {
     txt.innerHTML = '⚠️ OneDrive não conectado. Clique em <strong>Conectar ao OneDrive</strong>.';
   }
@@ -2454,17 +2455,14 @@ window.addEventListener('load', () => {
     auth = firebase.auth();
   } catch(e) { console.warn('Firebase init:', e); }
 
-  // Carrega config do OneDrive
-  const odCfg = loadOneDriveConfig();
-  if (odCfg) {
-    document.getElementById('od-clientId').value = odCfg.clientId || '';
-    document.getElementById('od-redirectUri').value = odCfg.redirectUri || '';
-    // Mostra o botão conectar imediatamente se já tem config salva
-    document.getElementById('btn-od-login').style.display = 'block';
-    initMSAL(odCfg).then(() => {
-      if (oneDriveAccount) syncFromCloud();
-    });
-  }
+  // Inicializa OneDrive com config fixa embutida no código
+  const odCfg = DEFAULT_ONEDRIVE_CONFIG;
+  document.getElementById('od-clientId').value = odCfg.clientId;
+  document.getElementById('od-redirectUri').value = odCfg.redirectUri;
+  document.getElementById('btn-od-login').style.display = 'block';
+  initMSAL(odCfg).then(() => {
+    if (oneDriveAccount) syncFromCloud();
+  });
 
   setTimeout(() => {
     document.getElementById('loader').style.opacity = '0';
